@@ -12,6 +12,7 @@ type Tree = z.output<typeof TreeResponse>;
 type Progress = z.output<typeof ProgressResponse>;
 type Finding = z.output<typeof FindingsResponse>["findings"][number];
 type FileNode = Tree["files"][number];
+type Scan = z.output<typeof ScanSummary>;
 
 const GhConfig = z.object({ appConfigured: z.boolean(), signInEnabled: z.boolean(), installUrl: z.string().nullable(), publicScans: z.boolean() });
 
@@ -91,22 +92,39 @@ async function renderAccount() {
 }
 
 /* ---------- home ---------- */
+/** starts a scan and opens it; on failure the message goes into `err` and the button is re-enabled */
+async function startScan(body: object, btn: HTMLButtonElement, err: HTMLElement) {
+  err.textContent = "";
+  btn.disabled = true;
+  try {
+    const r = await api("/gh/scans", CreateScanResponse, { method: "POST", body: JSON.stringify(body) });
+    location.hash = `#/scans/${r.scanId}`;
+  } catch (e) {
+    err.textContent = (e as Error).message;
+    btn.disabled = false;
+  }
+}
+
+/** "Rescan" — a new full scan of the repository's default branch, e.g. after the issues were fixed */
+function rescanButton(repoId: string) {
+  const err = h("span", { class: "error", role: "alert" });
+  const btn: HTMLButtonElement = h("button", { type: "button", onclick: () => void startScan({ repoId }, btn, err) }, "Rescan");
+  return h("span", { class: "rescan" }, btn, err);
+}
+
+type Crumb = { label: string; href?: string; mono?: boolean };
+const crumbs = (...items: Crumb[]) =>
+  h("nav", { class: "crumbs", "aria-label": "Breadcrumb" },
+    h("ol", {}, items.map((c, i) => h("li", {},
+      i === items.length - 1
+        ? h("span", { "aria-current": "page", class: c.mono ? "mono" : undefined }, c.label)
+        : h("a", { href: c.href, class: c.mono ? "mono" : undefined }, c.label)))));
+
 async function home() {
   const err = h("p", { class: "error", role: "alert" });
   const input = h("input", { id: "repo-url", name: "repo", type: "url", inputmode: "url", placeholder: "https://github.com/owner/repo", "aria-describedby": "repo-hint", required: true, autocomplete: "off" });
   const submit = h("button", { type: "submit" }, "Scan repository");
-  const startScan = async (body: object, btn: HTMLButtonElement) => {
-    err.textContent = "";
-    btn.disabled = true;
-    try {
-      const r = await api("/gh/scans", CreateScanResponse, { method: "POST", body: JSON.stringify(body) });
-      location.hash = `#/scans/${r.scanId}`;
-    } catch (e) {
-      err.textContent = (e as Error).message;
-      btn.disabled = false;
-    }
-  };
-  const form = h("form", { class: "scan-form", onsubmit: (e: Event) => { e.preventDefault(); void startScan({ repoUrl: input.value.trim() }, submit); } },
+  const form = h("form", { class: "scan-form", onsubmit: (e: Event) => { e.preventDefault(); void startScan({ repoUrl: input.value.trim() }, submit, err); } },
     h("h2", {}, "Scan a repository"),
     h("label", { for: "repo-url" }, "GitHub repository URL"),
     input,
@@ -141,7 +159,7 @@ async function home() {
         h("td", {}, r.lastScan ? h("span", {}, statusPill(r.lastScan.status), " ", ago(r.lastScan.createdAt)) : "Never scanned"),
         h("td", {}, r.lastScan ? h("a", { href: `#/scans/${r.lastScan.id}` }, "Open last scan") : null),
       ));
-    const demoBtn = demo ? h("button", { type: "button", class: "btn-quiet", onclick: (e: Event) => void startScan({ repoId: demo.id }, e.currentTarget as HTMLButtonElement) }, "Scan the demo repository") : null;
+    const demoBtn = demo ? h("button", { type: "button", class: "btn-quiet", onclick: (e: Event) => void startScan({ repoId: demo.id }, e.currentTarget as HTMLButtonElement, err) }, "Scan the demo repository") : null;
     reposBox.replaceChildren(
       h("div", { class: "toolbar" }, h("h2", { id: "repos-h" }, "Repositories"), demoBtn),
       repos.length
@@ -153,6 +171,15 @@ async function home() {
   }
 }
 
+/** what this scan changed: a pull request against its base, a full scan against the previous completed full scan */
+function compareLink(s: Scan, scans: Scan[]) {
+  if (s.kind === "pr") return s.baseScanId ? h("a", { href: `#/scans/${s.baseScanId}/diff/${s.id}` }, "Compare with base commit") : null;
+  if (s.status !== "completed") return null;
+  const prev = scans.filter((x) => x.kind === "full" && x.status === "completed" && x.id !== s.id && Date.parse(x.createdAt) < Date.parse(s.createdAt))
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0];
+  return prev ? h("a", { href: `#/scans/${prev.id}/diff/${s.id}` }, "What changed since the previous scan") : null;
+}
+
 /* ---------- repo ---------- */
 async function repoPage(id: string) {
   setPage("Repository", h("p", { class: "empty" }, "Loading…"));
@@ -160,14 +187,14 @@ async function repoPage(id: string) {
     const { scans } = await api(`/api/repos/${id}/scans`, ScansResponse);
     const name = scans[0]?.repoFullName ?? "Repository";
     setPage(name,
-      h("p", {}, h("a", { href: "#/" }, "All repositories")),
-      h("h1", { class: "mono", style: { margin: ".5rem 0 1rem" } }, name),
+      crumbs({ label: "Home", href: "#/" }, { label: name, mono: true }),
+      h("div", { class: "page-head" }, h("h1", { class: "mono" }, name), rescanButton(id)),
       scans.length
         ? h("div", { class: "table-wrap" }, h("table", {},
-            h("thead", {}, h("tr", {}, ...["Scan", "Trigger", "Ref", "Status", "Started"].map((t) => h("th", { scope: "col" }, t)))),
+            h("thead", {}, h("tr", {}, ...["Scan", "Changes", "Ref", "Status", "Started"].map((t) => h("th", { scope: "col" }, t)))),
             h("tbody", {}, scans.map((s) => h("tr", {},
               h("td", {}, h("a", { href: `#/scans/${s.id}` }, s.kind === "pr" ? `Pull request #${s.prNumber}` : "Full scan")),
-              h("td", {}, s.kind === "pr" && s.baseScanId ? h("a", { href: `#/scans/${s.baseScanId}/diff/${s.id}` }, "Compare with base") : "—"),
+              h("td", {}, compareLink(s, scans) ?? "—"),
               h("td", { class: "mono" }, `${s.ref} @ ${s.headSha.slice(0, 7)}`),
               h("td", {}, statusPill(s.status)),
               h("td", {}, ago(s.createdAt)),
@@ -211,7 +238,9 @@ async function scanPage(id: string) {
   const ribbonBox = h("section", { class: "ribbon-wrap", "aria-labelledby": "ribbon-h" });
   const treeBox = h("section", { class: "panel", "aria-labelledby": "tree-h" });
   const findBox = h("section", { class: "panel", "aria-labelledby": "find-h" });
-  setPage("Scan", h("p", {}, h("a", { href: "#/" }, "All repositories")), head, ribbonBox, h("div", { class: "split" }, treeBox, findBox));
+  const nav = h("div");
+  setPage("Scan", nav, head, ribbonBox, h("div", { class: "split" }, treeBox, findBox));
+  let history: Scan[] | null = null;
   let lastStatus = "";
   const openDirs = new Set<string>();
   let dirsInitialised = false;
@@ -226,16 +255,19 @@ async function scanPage(id: string) {
   function renderHead() {
     const s = st.tree!.scan;
     const p = st.progress;
+    const finished = s.status === "completed" || s.status === "failed";
+    nav.replaceChildren(crumbs({ label: "Home", href: "#/" }, { label: s.repoFullName, href: `#/repos/${s.repoId}`, mono: true }, { label: s.kind === "pr" ? `Pull request #${s.prNumber}` : `Scan ${s.headSha.slice(0, 7)}` }));
+    const cmp = history ? compareLink(s, history) : null;
     head.replaceChildren(
       h("div", {},
-        h("h1", { class: "mono" }, s.repoFullName),
+        h("div", { class: "page-head" }, h("h1", { class: "mono" }, s.repoFullName), finished ? rescanButton(s.repoId) : null),
         h("div", { class: "meta" },
           statusPill(s.status),
           h("span", {}, s.kind === "pr" ? `Pull request #${s.prNumber}` : "Full scan"),
           h("span", { class: "mono" }, `${s.ref} @ ${s.headSha.slice(0, 7)}`),
           p ? h("span", {}, `${(p.elapsedMs / 1000).toFixed(1)} s`) : null,
           h("a", { href: `#/repos/${s.repoId}` }, "Scan history"),
-          s.baseScanId ? h("a", { href: `#/scans/${s.baseScanId}/diff/${s.id}` }, "Compare with base commit") : null,
+          cmp,
         ),
       ),
     );
@@ -351,6 +383,9 @@ async function scanPage(id: string) {
       const [tree, progress] = await Promise.all([api(`/api/scans/${id}/tree`, TreeResponse), api(`/api/scans/${id}/progress`, ProgressResponse)]);
       st.tree = tree;
       st.progress = progress;
+      if (!history && (progress.status === "completed" || progress.status === "failed")) {
+        history = await api(`/api/repos/${tree.scan.repoId}/scans`, ScansResponse).then((r) => r.scans, () => []);
+      }
       renderHead();
       renderRibbon();
       renderTree();
@@ -382,9 +417,9 @@ async function diffPage(base: string, headId: string) {
     const groups = (["regression", "resolved", "persistent"] as const).map((k) => ({ k, items: d.items.filter((i) => i.diff === k && i.status !== "rejected") }));
     const label = { regression: "New in this version", resolved: "Fixed in this version", persistent: "Already present before" };
     setPage("Compare",
-      h("p", {}, h("a", { href: `#/scans/${headId}` }, "Back to scan")),
+      crumbs({ label: "Home", href: "#/" }, { label: hs.repoFullName, href: `#/repos/${hs.repoId}`, mono: true }, { label: hs.kind === "pr" ? `Pull request #${hs.prNumber}` : `Scan ${hs.headSha.slice(0, 7)}`, href: `#/scans/${headId}` }, { label: "Changes" }),
       h("h1", { class: "mono", style: { margin: ".5rem 0" } }, hs.repoFullName),
-      h("p", { class: "hint", style: { marginBottom: "1rem" } }, `${hs.kind === "pr" ? `Pull request #${hs.prNumber}` : hs.ref} compared with the base commit. Findings are matched by fingerprint, so moved code is not reported as new.`),
+      h("p", { class: "hint", style: { marginBottom: "1rem" } }, `${hs.kind === "pr" ? `Pull request #${hs.prNumber}` : hs.ref} ${hs.kind === "pr" ? "compared with the base commit" : "compared with the previous full scan"}. Findings are matched by fingerprint, so moved code is not reported as new.`),
       h("div", { class: "diffbar" }, groups.map((g) => h("span", { class: `pill diff-${g.k}` }, `${label[g.k]}: ${g.items.length}`))),
       ...groups.map((g) => h("section", { class: "panel", style: { marginBottom: "1rem" }, "aria-label": label[g.k] },
         h("h2", { class: `diff-${g.k}`, style: { marginBottom: ".5rem" } }, label[g.k]),

@@ -40,4 +40,4 @@ images:
     newTag: "1.0.0"
   - name: deepscan-dashboard
     newName: docker.io/ariadaorg/deepscan-dashboard
-    newTag: "1.0.0"
+    newTag: "1.1.0"

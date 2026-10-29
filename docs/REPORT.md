@@ -20,11 +20,15 @@ For every markup or style file (HTML, JSX/TSX, Vue, Svelte, CSS) the system does
 
 Every finding gets a structural **fingerprint** that is stable across line shifts. Pull requests are compared with the scan of their base commit, which classifies each finding as **new**, **fixed** or **pre-existing**. Only new, verified findings of blocking severity fail the GitHub check. Results are published as a Check Run with annotations, inline review comments and a summary comment. They are also shown in a web dashboard that displays the repository tree while it is being scanned, and in a browser extension that outlines the issues on the live website.
 
+Once the issues are fixed, the system checks the fix by itself. A push to the default branch starts a new full scan, and every new commit on a pull request re-scans it. In the dashboard, a *Rescan* button on the scan and history pages does the same by hand, and *What changed since the previous scan* lists which issues are fixed, which are new and which are still there.
+
 **Scale assumption.** The demo repository has 13 analysable files, which does not need scaling. To make the architecture meaningful, assume a SaaS that serves organisations with thousands of repositories and hundreds of pull requests per day, where each file costs an LLM round trip of several seconds. In the default configuration the mock LLM simulates this latency (`MOCK_DELAY_MS`).
 
 ## 2. Architecture
 
 [![Architecture](assets/architecture.png)](assets/architecture.svg)
+
+Everything drawn with solid lines is built and deployed. The dashed box is the one part that is not built yet: a fix-agent that would close the loop from finding to fix (section 5).
 
 The same diagram as text:
 
@@ -33,20 +37,20 @@ The same diagram as text:
  OUTSIDE THE CLUSTER
  ┌──────────────────────┐         ┌────────────────────────────┐            ┌──────────────────────────┐
  │ Browser / extension  │         │ GitHub                     │            │ LLM endpoint (Ollama)    │
- │ dashboard UI, overlay│         │ App webhooks, REST API     │            │ qwen2.5-coder:7b         │
- └──────────────────────┘         └────────────────────────────┘            └──────────────────────────┘
-     │                                  │                     ▲                         ▲
-     │                                  │webhooks             │                         │
-╔════╪═ KUBERNETES NAMESPACE deepscan ══╪═════════════════════╪═════════════════════════╪══════════════════╗
-║    ▼                                  ▼                     │                         │                  ║
-║ ┌──────────────────────────────────────────────────────┐    │                         │                  ║
-║ │ Ingress                                              │    │REST: trees, blobs,      │                  ║
-║ │ /      → dashboard                                   │    │checks, PR reviews       │                  ║
-║ │ /api   → findings-api                                │    │                         │chat + tool calls ║
-║ │ /gh    → github-connector                            │    │                         │                  ║
-║ └──────────────────────────────────────────────────────┘    │                         │                  ║
-║       │/                │/api                   │/gh        │                         │                  ║
-║       ▼                 ▼                       ▼           │                         │                  ║
+ │ dashboard UI, overlay│         │ App webhooks, REST API     │◀┄┄┄┐       │ qwen2.5-coder:7b         │
+ └──────────────────────┘         └────────────────────────────┘    ┆       └──────────────────────────┘
+     │                                  │                     ▲     ┆opens fix PR       ▲
+     │                                  │webhooks             │     ┆                   │
+╔════╪═ KUBERNETES NAMESPACE deepscan ══╪═════════════════════╪═════╪═══════════════════╪══════════════════╗
+║    ▼                                  ▼                     │     ┆                   │                  ║
+║ ┌──────────────────────────────────────────────────────┐    │ ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐ │                  ║
+║ │ Ingress                                              │    │ ┆ fix-agent (planned) ┆ │                  ║
+║ │ /      → dashboard                                   │    │ ┆ verified findings   ┆ │                  ║
+║ │ /api   → findings-api                                │    │ ┆ → patch → fix PR    ┆ │chat + tool calls ║
+║ │ /gh    → github-connector                            │    │ ┆ → PR scan: resolved ┆ │                  ║
+║ └──────────────────────────────────────────────────────┘    │ └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘ │                  ║
+║       │/                │/api                   │/gh        │REST: trees, blobs,      │                  ║
+║       ▼                 ▼                       ▼           │checks, PR reviews       │                  ║
 ║ ┌────────────┐  ┌────────────────┐    ┌────────────────────────┐                      │                  ║
 ║ │ dashboard  │  │ findings-api   │    │ github-connector       │◀─────────────┐       │                  ║
 ║ │ SPA        │  │ read model     │    │ snapshots, jobs, checks│ read_file,   │       │                  ║
@@ -68,7 +72,7 @@ The same diagram as text:
 ║ │ repositories · scans · scan_jobs queue · findings · WCAG corpus (full-text + vectors)              │   ║
 ║ └────────────────────────────────────────────────────────────────────────────────────────────────────┘   ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-
+ ┄┄ dashed = planned, not built yet: fix-agent closes the loop fix → PR → scan → resolved
 ```
 <!-- architecture:end -->
 
@@ -160,6 +164,14 @@ The language model is not part of the deployment. It is an external endpoint tha
 - **Data residency and model choice.** The provider abstraction allows an on-premise or EU-hosted model, which is a sales requirement in regulated sectors.
 - **Lock-in.** The system is portable: plain Kubernetes, PostgreSQL and REST. The only external dependencies are GitHub and the LLM API.
 
-## 5. Use of generative AI
+## 5. What comes next
+
+**Closing the loop from finding to fix.** Today the loop is closed only on the checking side. A developer fixes the code, the push or the pull request is scanned again, and the comparison with the previous scan shows the issue as fixed. The fixing itself is still done by a person. The next step is the dashed box in the architecture diagram: a fix-agent that takes the verified findings of a scan, writes a patch for those with a safe, local fix (a missing `lang`, an icon button without a name, a removed focus outline, a form field without a label), and opens a pull request with it. That pull request then goes through the same pipeline as any other. It is scanned against its base, and the check passes only if the findings it targets come back as fixed and no new ones appear. A person still reviews and merges it. Little new infrastructure is needed: the fix-agent is one more consumer of the existing job queue, its patches are judged by the same deterministic verifier, and its pull requests go through the same webhook path as human ones. Findings that need judgement, such as whether an alt text actually describes the image, stay with people.
+
+**More scan domains.** The first domain is web accessibility, because that is where the law (the European Accessibility Act) creates demand now. Nothing in the architecture is tied to it, though. The rules work on a framework-neutral element model, the knowledge base is a corpus loaded into `rag-service`, the list of valid criteria is an enum in the contract layer, and fingerprints, baselines and the pull-request gate do not care what a finding is about. Other domains can be added the same way, each with its own rule pack, corpus and criteria list: front-end security (unsafe HTML injection, missing security headers, secrets in client code), privacy (trackers and cookies loaded before consent, in the GDPR sense), and the quality of markup for search engines and performance. Each domain can get its own job queue and agent Deployment, so a heavy domain scales without slowing the others.
+
+**Scaling on the right signal.** The agents are scaled on CPU today, which is a weak signal for work that mostly waits for the model. Scaling on the length of the job queue with KEDA (Kubernetes Event-driven Autoscaling) is the next change to the deployment.
+
+## 6. Use of generative AI
 
 Generative AI (Claude) was used as a programming assistant while designing and implementing this project. All code was reviewed, run and tested by the author; the design decisions and their justification are the author's.
