@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1005 882" font-family="Atkinson Hyperlegible Next, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" role="img" aria-labelledby="t d">
+<title id="t">Ariada DeepScan architecture</title>
+<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="21" y="28" font-weight="700" fill="#475569" letter-spacing=".08em" font-size="12">OUTSIDE THE CLUSTER</text>
+<rect x="16.5" y="177" width="963" height="660" rx="10" fill="#fbfdff" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="7 5"/>
+<text x="88.5" y="171" font-weight="700" fill="#2563eb" letter-spacing=".08em" font-size="12">KUBERNETES NAMESPACE deepscan</text>
+<rect x="25.5" y="45" width="207" height="66" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+<text x="129" y="72" text-anchor="middle" font-weight="700" fill="#0f172a">Browser / extension</text>
+<text x="129" y="94" text-anchor="middle" fill="#334155">dashboard UI, overlay</text>
+<rect x="322.5" y="45" width="261" height="66" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+<text x="453" y="72" text-anchor="middle" font-weight="700" fill="#0f172a">GitHub</text>
+<text x="453" y="94" text-anchor="middle" fill="#334155">App webhooks, REST API</text>
+<rect x="700.5" y="45" width="243" height="66" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+<text x="822" y="72" text-anchor="middle" font-weight="700" fill="#0f172a">LLM endpoint (Ollama)</text>
+<text x="822" y="94" text-anchor="middle" fill="#334155">qwen2.5-coder:7b</text>
+<rect x="34.5" y="221" width="495" height="110" rx="6" fill="#ffffff" stroke="#1e293b" stroke-width="1.5"/>
+<text x="282" y="248" text-anchor="middle" font-weight="700" fill="#0f172a">Ingress</text>
+<text x="50.5" y="270" xml:space="preserve" font-family="Atkinson Hyperlegible Mono, ui-monospace, Menlo, monospace" font-size="12.5" fill="#1e293b">/      → dashboard</text>
+<text x="50.5" y="292" xml:space="preserve" font-family="Atkinson Hyperlegible Mono, ui-monospace, Menlo, monospace" font-size="12.5" fill="#1e293b">/api   → findings-api</text>
+<text x="50.5" y="314" xml:space="preserve" font-family="Atkinson Hyperlegible Mono, ui-monospace, Menlo, monospace" font-size="12.5" fill="#1e293b">/gh    → github-connector</text>
+<rect x="34.5" y="397" width="117" height="66" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="93" y="424" text-anchor="middle" font-weight="700" fill="#0f172a">dashboard</text>
+<text x="93" y="446" text-anchor="middle" fill="#334155">SPA</text>
+<rect x="178.5" y="397" width="153" height="66" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="255" y="424" text-anchor="middle" font-weight="700" fill="#0f172a">findings-api</text>
+<text x="255" y="446" text-anchor="middle" fill="#334155">read model</text>
+<rect x="376.5" y="397" width="225" height="66" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="489" y="424" text-anchor="middle" font-weight="700" fill="#0f172a">github-connector</text>
+<text x="489" y="446" text-anchor="middle" fill="#334155">snapshots, jobs, checks</text>
+<rect x="268.5" y="529" width="144" height="44" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="340.5" y="556" text-anchor="middle" font-weight="700" fill="#0f172a">verifier</text>
+<rect x="268.5" y="617" width="144" height="44" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="340.5" y="644" text-anchor="middle" font-weight="700" fill="#0f172a">rag-service</text>
+<rect x="700.5" y="507" width="243" height="154" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="822" y="534" text-anchor="middle" font-weight="700" fill="#0f172a">analysis-agent × N</text>
+<text x="822" y="556" text-anchor="middle" fill="#334155">LLM tool loop</text>
+<text x="822" y="578" text-anchor="middle" fill="#334155">competing consumers</text>
+<text x="822" y="600" text-anchor="middle" fill="#334155">scaled by its own HPA</text>
+<rect x="34.5" y="749" width="909" height="66" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+<text x="489" y="776" text-anchor="middle" font-weight="700" fill="#0f172a">PostgreSQL 16 + pgvector — StatefulSet with a PersistentVolumeClaim</text>
+<text x="489" y="798" text-anchor="middle" fill="#334155">repositories · scans · scan_jobs queue · findings · WCAG corpus (full-text + vectors)</text>
+<polyline points="61.5,111 61.5,221" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<polyline points="376.5,111 376.5,221" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="383" y="160" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">webhooks</text>
+<polyline points="574.5,397 574.5,111" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="581" y="248" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">REST: trees, blobs,</text>
+<text x="581" y="270" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">checks, PR reviews</text>
+<polyline points="808.5,507 808.5,111" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="815" y="292" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">chat + tool calls</text>
+<polyline points="88.5,331 88.5,397" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="95" y="358" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">/</text>
+<polyline points="250.5,331 250.5,397" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="257" y="358" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">/api</text>
+<polyline points="466.5,331 466.5,397" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="473" y="358" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">/gh</text>
+<polyline points="736.5,507 736.5,419 601.5,419" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="617" y="446" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">read_file,</text>
+<text x="617" y="468" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">list_related</text>
+<polyline points="394.5,463 394.5,529" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="401" y="490" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">policy gate</text>
+<polyline points="700.5,551 412.5,551" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="536" y="534" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">run_rules, verify</text>
+<polyline points="700.5,639 412.5,639" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="527" y="622" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">search_wcag, get_sc</text>
+<polyline points="250.5,463 250.5,749" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="257" y="600" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">reads</text>
+<polyline points="340.5,661 340.5,749" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<polyline points="520.5,463 520.5,749" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="527" y="600" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">jobs</text>
+<polyline points="826.5,661 826.5,749" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="833" y="688" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">claim jobs,</text>
+<text x="833" y="710" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">write findings</text>
+</svg>
