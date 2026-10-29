@@ -21,7 +21,20 @@ patches:
       - op: replace
         path: /data/OPENAI_BASE_URL
         value: http://ollama.deepscan.svc.cluster.local:11434/v1
+      # the scan page shows the CPU cores the ollama pod uses, from the metrics API
+      - op: replace
+        path: /data/MODEL_RUNS_ON
+        value: cluster
       # one model serves every agent pod: one request per pod keeps the queue shorter than the lease
       - op: replace
         path: /data/WORKER_CONCURRENCY
         value: "1"
+  # findings-api reads the ollama pod's CPU from the metrics API with its own, narrowly bound token
+  - target: { kind: Deployment, name: findings-api }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/serviceAccountName
+        value: findings-api
+      - op: replace
+        path: /spec/template/spec/automountServiceAccountToken
+        value: true

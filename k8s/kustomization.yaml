@@ -37,7 +37,7 @@ images:
     newTag: "1.0.0"
   - name: deepscan-findings-api
     newName: docker.io/ariadaorg/deepscan-findings-api
-    newTag: "1.1.0"
+    newTag: "1.2.0"
   - name: deepscan-dashboard
     newName: docker.io/ariadaorg/deepscan-dashboard
-    newTag: "1.1.5"
+    newTag: "1.2.1"

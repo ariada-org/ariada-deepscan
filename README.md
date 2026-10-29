@@ -114,6 +114,8 @@ The analysis agents need a model, and there are three ways to give them one:
 
 `host` is the one to use for a real demo on a Mac: containers there cannot reach the GPU, the host's Ollama can. The overlays live in `overlays/llm-host` and `overlays/llm-cluster`; `LLM=<mode> ./scripts/deploy.sh` switches an existing cluster between modes and ends with a check that an agent pod reaches the model.
 
+While a scan runs, its page shows next to the elapsed seconds how busy the hardware behind the model is: the host GPU (or CPU) in `host` mode, read by `scripts/host-load.mjs`, which `deploy.sh` starts on port 11435 next to Ollama, and the cores the Ollama pod uses in `cluster` mode, read from the metrics API. `kind-up.sh` also installs `metrics-server`, which the HPAs and that reading need.
+
 For any other cluster:
 
 ```bash
@@ -127,7 +129,7 @@ DOCKERHUB_USER=<you> TAG=1.0.0 ./scripts/build-push.sh
 kubectl -n deepscan port-forward svc/dashboard 8080:8080     # → http://localhost:8080
 ```
 
-With an ingress-nginx controller installed, the app is also served on the controller's address. The HPAs need `metrics-server`. The NetworkPolicies need a CNI that enforces them (Calico or Cilium; Docker Desktop ignores them).
+With an ingress-nginx controller installed, the app is also served on the controller's address. The HPAs need `metrics-server` (`kind-up.sh` installs it; on other clusters install it yourself). The NetworkPolicies need a CNI that enforces them (Calico or Cilium; Docker Desktop ignores them).
 
 Useful commands for the demo:
 

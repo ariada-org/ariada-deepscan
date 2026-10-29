@@ -177,3 +177,8 @@ h1.mono { font-family: var(--mono); font-size: clamp(1.25rem, 2.6vw, 1.75rem); f
 .page-head { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-bottom: 1rem; }
 .scan-head .page-head { margin-bottom: 0; }
 .rescan { display: inline-flex; align-items: center; gap: .5rem; }
+
+/* model load next to the elapsed time: a thin bar plus the number */
+.scan-head .load { display: inline-flex; align-items: center; gap: .4rem; }
+.load-bar { width: 44px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; display: inline-block; }
+.load-bar > span { display: block; height: 100%; background: var(--blue); transition: width .6s ease; }

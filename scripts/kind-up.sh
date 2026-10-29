@@ -21,6 +21,13 @@ kind get clusters 2>/dev/null | grep -qx deepscan || kind create cluster --confi
 kubectl config use-context kind-deepscan >/dev/null
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 kubectl -n ingress-nginx wait --for=condition=ready pod -l app.kubernetes.io/component=controller --timeout=300s
+# metrics-server: the HPAs scale on CPU, and the scan page shows the model pod's load in cluster mode.
+# kind's kubelets have self-signed certificates, hence --kubelet-insecure-tls (a local cluster only).
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.9.1/components.yaml
+kubectl -n kube-system get deployment metrics-server -o jsonpath='{.spec.template.spec.containers[0].args}' | grep -q kubelet-insecure-tls \
+  || kubectl -n kube-system patch deployment metrics-server --type=json \
+       -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+kubectl -n kube-system rollout status deployment/metrics-server --timeout=180s
 ./scripts/deploy.sh
 echo
 echo "DeepScan is up:  http://localhost:8088   (model: $LLM)"

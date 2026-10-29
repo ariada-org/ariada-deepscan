@@ -40,6 +40,11 @@ if [ "$LLM" = host ]; then
   fi
   sed "s/HOST_IP/$HOST_IP/g" overlays/llm-host/host-endpoint.yaml.in > overlays/llm-host/host-endpoint.yaml
   echo "model: $model on the host's Ollama at $HOST_IP:11434"
+  # the cluster cannot see this machine's GPU: a small reporter next to Ollama tells the scan page how busy it is
+  if ! curl -sf http://localhost:11435/load >/dev/null; then
+    nohup node scripts/host-load.mjs > host-load.log 2>&1 &
+    echo "started scripts/host-load.mjs (GPU and CPU load for the scan page, port 11435)"
+  fi
 fi
 
 # Switching modes: remove what another mode left behind, so "ollama" means exactly one thing.
@@ -47,7 +52,8 @@ ns=deepscan
 if kubectl get namespace "$ns" >/dev/null 2>&1; then
   [ "$LLM" = cluster ] || kubectl -n "$ns" delete deployment/ollama pvc/ollama-models networkpolicy/ollama --ignore-not-found --wait=false >/dev/null
   [ "$LLM" = host ] || kubectl -n "$ns" delete endpointslice/ollama-host --ignore-not-found >/dev/null
-  [ "$LLM" != mock ] || kubectl -n "$ns" delete service/ollama networkpolicy/agent-egress-ollama --ignore-not-found >/dev/null
+  [ "$LLM" = cluster ] || kubectl -n "$ns" delete serviceaccount/findings-api role/read-pod-metrics rolebinding/findings-api-read-pod-metrics --ignore-not-found >/dev/null
+  [ "$LLM" != mock ] || kubectl -n "$ns" delete service/ollama networkpolicy/agent-egress-ollama networkpolicy/findings-api-egress-model --ignore-not-found >/dev/null
   # a Service keeps its selector across apply; recreate it when moving between host and cluster
   if kubectl -n "$ns" get service/ollama >/dev/null 2>&1; then
     has_selector=$(kubectl -n "$ns" get service/ollama -o jsonpath='{.spec.selector}')

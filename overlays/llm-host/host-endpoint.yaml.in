@@ -1,9 +1,12 @@
 # Template: kind-up.sh replaces HOST_IP and writes host-endpoint.yaml (git-ignored).
+# Two ports on the host: Ollama, and scripts/host-load.mjs reporting how busy the host's GPU is.
 apiVersion: v1
 kind: Service
 metadata: { name: ollama }
 spec:
-  ports: [{ name: http, port: 11434, targetPort: 11434 }]
+  ports:
+    - { name: http, port: 11434, targetPort: 11434 }
+    - { name: load, port: 11435, targetPort: 11435 }
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -11,7 +14,9 @@ metadata:
   name: ollama-host
   labels: { kubernetes.io/service-name: ollama }
 addressType: IPv4
-ports: [{ name: http, port: 11434, protocol: TCP }]
+ports:
+  - { name: http, port: 11434, protocol: TCP }
+  - { name: load, port: 11435, protocol: TCP }
 endpoints:
   - addresses: ["HOST_IP"]
 ---
@@ -25,3 +30,14 @@ spec:
   egress:
     - to: [{ ipBlock: { cidr: HOST_IP/32 } }]
       ports: [{ port: 11434, protocol: TCP }]
+---
+# findings-api reads which model is loaded and how busy the GPU is, for the scan page
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: findings-api-egress-model }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: findings-api } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ ipBlock: { cidr: HOST_IP/32 } }]
+      ports: [{ port: 11434, protocol: TCP }, { port: 11435, protocol: TCP }]

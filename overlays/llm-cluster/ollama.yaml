@@ -70,7 +70,7 @@ spec:
   selector: { app.kubernetes.io/name: ollama }
   ports: [{ name: http, port: 11434, targetPort: http }]
 ---
-# Only the analysis agents may call the model; the model may only reach the registry to pull itself.
+# Only the analysis agents call the model (findings-api only asks which model is loaded); the model may only reach the registry to pull itself.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata: { name: ollama }
@@ -78,7 +78,9 @@ spec:
   podSelector: { matchLabels: { app.kubernetes.io/name: ollama } }
   policyTypes: [Ingress, Egress]
   ingress:
-    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/name: analysis-agent } } }]
+    - from:
+        - podSelector: { matchLabels: { app.kubernetes.io/name: analysis-agent } }
+        - podSelector: { matchLabels: { app.kubernetes.io/name: findings-api } }
       ports: [{ port: 11434 }]
   egress:
     - to:
@@ -94,3 +96,37 @@ spec:
   egress:
     - to: [{ podSelector: { matchLabels: { app.kubernetes.io/name: ollama } } }]
       ports: [{ port: 11434 }]
+---
+# findings-api shows how busy the model is: Ollama's /api/ps, and the pod's CPU from the metrics API.
+# Only this overlay mounts a token into findings-api, and the token may read pod metrics, nothing else.
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: findings-api }
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { name: read-pod-metrics }
+rules:
+  - apiGroups: [metrics.k8s.io]
+    resources: [pods]
+    verbs: [get, list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: { name: findings-api-read-pod-metrics }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: Role, name: read-pod-metrics }
+subjects: [{ kind: ServiceAccount, name: findings-api }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: findings-api-egress-model }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: findings-api } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app.kubernetes.io/name: ollama } } }]
+      ports: [{ port: 11434 }]
+    # the API server (kind serves it on the control-plane node, port 6443, behind kubernetes.default)
+    - ports: [{ port: 6443 }, { port: 443 }]
+      to: [{ ipBlock: { cidr: 0.0.0.0/0 } }]

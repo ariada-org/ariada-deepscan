@@ -20,6 +20,13 @@ patches:
       - op: replace
         path: /data/OPENAI_BASE_URL
         value: http://ollama.deepscan.svc.cluster.local:11434/v1
+      # the scan page shows how busy the host's GPU is, from scripts/host-load.mjs
+      - op: replace
+        path: /data/MODEL_RUNS_ON
+        value: host
+      - op: add
+        path: /data/HOST_LOAD_URL
+        value: http://ollama.deepscan.svc.cluster.local:11435/load
       # one model serves every agent pod: one request per pod keeps the queue shorter than the lease
       - op: replace
         path: /data/WORKER_CONCURRENCY

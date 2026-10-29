@@ -59,20 +59,20 @@ The same diagram as text:
 ║                         │               ▼             │                   ┌──────────────────────────┐   ║  ┆ reverter.ai (planned) ┆ ┆
 ║                         │ ┌───────────────┐           │ run_rules, verify │ analysis-agent × N       │   ║  ┆ fix PR or rollback    ┆┄┘
 ║                         │ │ verifier      │◀──────────┼───────────────────│ LLM tool loop            │   ║  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-║                         │ └───────────────┘           │                   │ competing consumers      │   ║
-║                         │reads                        │jobs               │ scaled by its own HPA    │   ║
-║                         │ ┌───────────────┐           │search_wcag, get_sc│                          │   ║
-║                         │ │ rag-service   │◀──────────┼───────────────────│                          │   ║
-║                         │ └───────────────┘           │                   └──────────────────────────┘   ║
-║                         │         │                   │                                 │claim jobs,     ║
-║                         │         │                   │                                 │write findings  ║
-║                         ▼         ▼                   ▼                                 ▼                ║
-║ ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐   ║
-║ │ PostgreSQL 16 + pgvector — StatefulSet with a PersistentVolumeClaim                                │   ║
-║ │ repositories · scans · scan_jobs queue · findings · WCAG corpus (full-text + vectors)              │   ║
-║ └────────────────────────────────────────────────────────────────────────────────────────────────────┘   ║
+║                         │ └───────────────┘           │                   │ competing consumers      │   ║  code ↔ page, file:line
+║                         │reads                        │jobs               │ scaled by its own HPA    │   ║  ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+║                         │ ┌───────────────┐           │search_wcag, get_sc│                          │   ║  ┆ one plugin (planned)  ┆
+║                         │ │ rag-service   │◀──────────┼───────────────────│                          │   ║┄▶┆ core + adapters:      ┆
+║                         │ └───────────────┘           │                   └──────────────────────────┘   ║  ┆ browser · IDE · CMS   ┆
+║                         │         │                   │                                 │claim jobs,     ║  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+║                         │         │                   │                                 │write findings  ║  findings as files
+║                         ▼         ▼                   ▼                                 ▼                ║  ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+║ ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐   ║  ┆ exports (planned)     ┆
+║ │ PostgreSQL 16 + pgvector — StatefulSet with a PersistentVolumeClaim                                │   ║┄▶┆ SARIF · JUnit · EARL  ┆
+║ │ repositories · scans · scan_jobs queue · findings · WCAG corpus (full-text + vectors)              │   ║  ┆ ACR/VPAT · statement  ┆
+║ └────────────────────────────────────────────────────────────────────────────────────────────────────┘   ║  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
- ┄┄ dashed = planned Ariada products: clamper.ai gates → blamer.ai finds who → reverter.ai opens fix PR → scan → resolved
+ ┄┄ dashed = planned: clamper.ai gate → blamer.ai who → reverter.ai fix PR → rescan; one plugin, many adapters; standard exports
 ```
 <!-- architecture:end -->
 
@@ -172,7 +172,11 @@ The language model is not part of the deployment. It is an external endpoint tha
 
 **More scan domains.** The first domain is web accessibility, because that is where the law (the European Accessibility Act) creates demand now. Nothing in the architecture is tied to it, though. The rules work on a framework-neutral element model, the knowledge base is a corpus loaded into `rag-service`, the list of valid criteria is an enum in the contract layer, and fingerprints, baselines and the pull-request gate do not care what a finding is about. Other domains can be added the same way, each with its own rule pack, corpus and criteria list. Ariada's domain catalogue already names them. Next to accessibility, the core domains are security (unsafe HTML injection, missing security headers, secrets in client code), privacy (trackers and cookies loaded before consent, in the GDPR sense), sustainability (page weight and wasted transfers), AI readiness (whether crawlers and language models can read the site) and structured data. After those come performance, search, localization and reliability. Each domain can get its own job queue and agent Deployment, so a heavy domain scales without slowing the others.
 
-**One browser extension.** DeepScan has a small extension of its own, which outlines the findings from the repository on the live site. Ariada also has a side-panel extension that scans the open page itself, locally, in the same domains. The two look at the same problem from opposite ends, from the code to the page and from the page to the code, and they belong in one extension. Its side panel would show the live scan next to the findings from the source, lead from an element on the page to its file and line, and ask reverter.ai for a fix. If the same rule modules are used in both places, the browser and the repository give the same answer.
+**One plugin, many adapters.** DeepScan has a small browser extension of its own, which outlines the findings from the repository on the live site. Ariada also has a side-panel extension that scans the open page itself, locally, and an editor extension for VS Code (Visual Studio Code) and JetBrains IDEs (integrated development environments) that marks problems inline while the code is being written. These are the same idea seen from different places, and they should be one plugin: a shared core that holds the rule modules, the finding format and the connection to DeepScan, with a thin adapter for each place it runs in. The browser adapter works from the page towards the code: click an element and land on its file and line. The editor adapter works from the code towards the page: a finding in the editor shows where it appears on the live site. A CMS (content management system) adapter, for WordPress, Drupal or Shopify themes, does the same for people who never open a repository. Ariada already plans connectors for about two hundred CMS, hosting, shop and CI (continuous integration) platforms, and they would all be adapters of this one core. Because every adapter runs the same rules, the browser, the editor and the repository give the same answer.
+
+**Seeing the code behind a finding.** The dashboard now names the file and the line but does not show them. The next version shows the code itself with the offending lines highlighted, and a link that opens the same place in the developer's own editor (`vscode://file/<path>:<line>` and its JetBrains equivalent). For people without a local checkout, a read-only built-in viewer with the same highlighting is enough.
+
+**Reports in standard formats.** Today the results live in the dashboard and in GitHub comments, which is enough for a developer but not for anyone who has to hand evidence on. The plan is a set of exports, each for a specific reader. SARIF 2.1.0 (Static Analysis Results Interchange Format) goes into GitHub code scanning and is read by GitLab, Azure DevOps and SonarQube as well. JUnit XML lets any CI server show the findings as failed tests, and GitLab's Code Quality JSON puts them into merge requests. For auditors there is EARL (the W3C Evaluation and Report Language) and a report in the WCAG-EM (WCAG Evaluation Methodology) structure. For buyers and public authorities there is an ACR (Accessibility Conformance Report) in the VPAT 2.5 (Voluntary Product Accessibility Template) format with the EN 301 549 tables, and a draft accessibility statement in the form the EU Web Accessibility Directive requires (in Sweden the DIGG template). A CSV or spreadsheet export covers everything else. Ariada already has emitters for SARIF, VPAT and EN 301 549, so most of this is wiring DeepScan's findings into them.
 
 **Scaling on the right signal.** The agents are scaled on CPU today, which is a weak signal for work that mostly waits for the model. Scaling on the length of the job queue with KEDA (Kubernetes Event-driven Autoscaling) is the next change to the deployment.
 

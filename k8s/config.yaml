@@ -20,6 +20,7 @@ data:
   OPENAI_MODEL: qwen2.5-coder:7b
   WORKER_CONCURRENCY: "2"
   MOCK_DELAY_MS: "1500"         # simulated LLM latency so that scaling the agents is visible
+  MODEL_RUNS_ON: mock           # mock | host | cluster: where the scan page reads the model's load (overlays set it)
   MAX_FILES_PER_SCAN: "1500"
   # policy gate: which severities of NEW verified findings fail a PR check
   POLICY_FAIL_ON: critical,serious

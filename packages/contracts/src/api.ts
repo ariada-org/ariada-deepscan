@@ -134,6 +134,16 @@ export const ProgressResponse = z.object({
   pods: z.array(z.object({ pod: z.string(), files: z.number().int() })),
   findings: z.record(z.string(), z.number().int()),
   elapsedMs: z.number().int(),
+  /** while the scan runs: where the model runs and how busy that hardware is (null fields: not known) */
+  model: z.object({
+    runsOn: z.enum(["mock", "host", "cluster"]),
+    name: z.string().nullable(),
+    device: z.enum(["gpu", "cpu"]).nullable(),
+    /** busy share of the host's GPU or CPU, percent */
+    pct: z.number().nullable(),
+    /** CPU cores the model's pod uses */
+    cores: z.number().nullable(),
+  }).nullable().optional(),
 });
 
 export const FindingsResponse = z.object({ findings: z.array(FindingRecord) });

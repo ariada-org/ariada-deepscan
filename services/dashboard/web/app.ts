@@ -230,6 +230,20 @@ const podVar = (pod: string | null) => {
 };
 const shortPod = (p: string) => p.replace(/^analysis-agent-/, "");
 
+/** how busy the hardware behind the model is, next to the elapsed time while a scan runs */
+function modelLoad(m: NonNullable<Progress["model"]>) {
+  if (m.runsOn === "mock") return h("span", { class: "load", title: "LLM=mock: a scripted stand-in answers, nothing is computed" }, "Mock model, no compute");
+  const where = `${m.name ?? "model"} ${m.runsOn === "host" ? "on the host" : "in the ollama pod"}`;
+  const unit = m.device === "gpu" ? "GPU" : "CPU";
+  const amount = m.runsOn === "cluster"
+    ? (m.cores === null ? "…" : `${m.cores.toFixed(1)} cores`)
+    : (m.pct === null ? "…" : `${Math.round(m.pct)}%`);
+  return h("span", { class: "load", title: m.name ? `busy share of the ${m.device === "gpu" ? "GPU" : "CPU"} that runs ${where}` : "the model is not loaded yet" },
+    m.pct === null ? null : h("span", { class: "load-bar", "aria-hidden": "true" }, h("span", { style: { width: `${Math.min(100, Math.max(3, m.pct))}%` } })),
+    h("span", { class: "mono" }, m.device ? `${unit} ${amount}` : "loading model"),
+    ` · ${where}`);
+}
+
 interface ScanState { tree: Tree | null; progress: Progress | null; selected: string | null; showRejected: boolean; findings: Finding[]; findingsFor: string | null; }
 
 function buildTree(files: FileNode[]) {
@@ -283,6 +297,7 @@ async function scanPage(id: string) {
           h("span", {}, s.kind === "pr" ? `Pull request #${s.prNumber}` : "Full scan"),
           h("span", { class: "mono" }, `${s.ref} @ ${s.headSha.slice(0, 7)}`),
           p ? h("span", {}, `${(p.elapsedMs / 1000).toFixed(1)} s`) : null,
+          p?.model && !finished ? modelLoad(p.model) : null,
           h("a", { href: `#/repos/${s.repoId}` }, "Scan history"),
           cmp,
         ),

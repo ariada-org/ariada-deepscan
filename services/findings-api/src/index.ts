@@ -6,12 +6,18 @@ import {
 } from "@deepscan/contracts";
 import { BaseEnv, DbEnv, loadEnv, createService, listen, createDb, sessionFromCookie, readCookie, SESSION_COOKIE, bool, type Session } from "@deepscan/platform";
 import { canSee, scanSummary, toRecord, diffScans } from "./queries.js";
+import { modelLoadProbe } from "./model-load.js";
 
 const env = loadEnv(BaseEnv.extend(DbEnv.shape).extend({
   ALLOW_PUBLIC_SCANS: bool.default(true),
   /** extra origins allowed to call the plugin endpoint (chrome-extension://… is always allowed) */
   PLUGIN_ORIGINS: z.string().default(""),
+  /** where the model runs, for the load shown on the scan page (set by the llm-host / llm-cluster overlays) */
+  MODEL_RUNS_ON: z.enum(["mock", "host", "cluster"]).default("mock"),
+  OPENAI_BASE_URL: z.string().url().default("http://ollama:11434/v1"),
+  HOST_LOAD_URL: z.string().url().default("http://ollama:11435/load"),
 }));
+const modelLoad = modelLoadProbe({ runsOn: env.MODEL_RUNS_ON, openAiBaseUrl: env.OPENAI_BASE_URL, hostLoadUrl: env.HOST_LOAD_URL });
 const { db, ping } = createDb(env.DATABASE_URL, env.DB_POOL_MAX);
 const app = await createService({ name: "findings-api", podName: env.POD_NAME, logLevel: env.LOG_LEVEL, ready: ping });
 
@@ -97,6 +103,7 @@ app.get("/api/scans/:id/progress", { schema: { ...scanParams, response: { 200: P
     byStatus: Object.fromEntries(by.map((r) => [r.status, r.n])), pods: pods.map((p) => ({ pod: p.locked_by!, files: p.n })),
     findings: Object.fromEntries(f.map((r) => [r.status, r.n])),
     elapsedMs: (scan.finished_at ?? new Date()).getTime() - scan.created_at.getTime(),
+    model: s.summary.status === "running" ? await modelLoad() : null,
   };
 });
 
