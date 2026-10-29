@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.log
+.env
+k8s/secrets/*.env
+.DS_Store
+docs/REPORT.pdf

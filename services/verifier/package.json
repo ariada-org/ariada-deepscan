@@ -1,0 +1,16 @@
+{
+  "name": "@deepscan/verifier",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "deepscan": { "entries": ["src/index.ts"] },
+  "dependencies": {
+    "@babel/parser": "^7.28.0",
+    "@deepscan/contracts": "workspace:*",
+    "@deepscan/platform": "workspace:*",
+    "parse5": "^7.3.0",
+    "postcss": "^8.5.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": { "@babel/types": "^7.28.0" }
+}

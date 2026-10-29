@@ -1,0 +1,12 @@
+{
+  "name": "@deepscan/dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "deepscan": { "entries": ["src/index.ts"], "web": "web" },
+  "dependencies": {
+    "@deepscan/contracts": "workspace:*",
+    "@deepscan/platform": "workspace:*",
+    "zod": "^4.1.12"
+  }
+}

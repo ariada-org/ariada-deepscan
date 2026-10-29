@@ -1,0 +1,505 @@
+# GitHub App: webhooks, App auth, repository ingest, publishing results, sign-in
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-connector
+  labels:
+    app.kubernetes.io/name: github-connector
+    app.kubernetes.io/part-of: deepscan
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: github-connector
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: github-connector
+        app.kubernetes.io/part-of: deepscan
+        deepscan.io/db-client: "true"
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: github-connector
+          image: deepscan-github-connector
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+            - secretRef:
+                name: deepscan-db
+            - secretRef:
+                name: deepscan-github
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: "500m", memory: 384Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-connector
+  labels:
+    app.kubernetes.io/name: github-connector
+    app.kubernetes.io/part-of: deepscan
+spec:
+  selector:
+    app.kubernetes.io/name: github-connector
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# LLM agent workers (competing consumers on the scan_jobs queue)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analysis-agent
+  labels:
+    app.kubernetes.io/name: analysis-agent
+    app.kubernetes.io/part-of: deepscan
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: analysis-agent
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: analysis-agent
+        app.kubernetes.io/part-of: deepscan
+        deepscan.io/db-client: "true"
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: analysis-agent
+          image: deepscan-analysis-agent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+            - secretRef:
+                name: deepscan-db
+            - secretRef:
+                name: deepscan-llm
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: "500m", memory: 384Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analysis-agent
+  labels:
+    app.kubernetes.io/name: analysis-agent
+    app.kubernetes.io/part-of: deepscan
+spec:
+  selector:
+    app.kubernetes.io/name: analysis-agent
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Built-in RAG over the WCAG 2.2 corpus (hybrid FTS + pgvector)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-service
+  labels:
+    app.kubernetes.io/name: rag-service
+    app.kubernetes.io/part-of: deepscan
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rag-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rag-service
+        app.kubernetes.io/part-of: deepscan
+        deepscan.io/db-client: "true"
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      initContainers:
+        - name: ingest-corpus
+          image: deepscan-rag-service
+          command: ["node", "ingest.js"]
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+            - secretRef:
+                name: deepscan-db
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+      containers:
+        - name: rag-service
+          image: deepscan-rag-service
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+            - secretRef:
+                name: deepscan-db
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: "500m", memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-service
+  labels:
+    app.kubernetes.io/name: rag-service
+    app.kubernetes.io/part-of: deepscan
+spec:
+  selector:
+    app.kubernetes.io/name: rag-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Deterministic rules engine, finding verification, fingerprints, policy gate
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: verifier
+  labels:
+    app.kubernetes.io/name: verifier
+    app.kubernetes.io/part-of: deepscan
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: verifier
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: verifier
+        app.kubernetes.io/part-of: deepscan
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: verifier
+          image: deepscan-verifier
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: "1", memory: 384Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: verifier
+  labels:
+    app.kubernetes.io/name: verifier
+    app.kubernetes.io/part-of: deepscan
+spec:
+  selector:
+    app.kubernetes.io/name: verifier
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Read side: trees, progress, findings, diffs, plugin endpoint
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: findings-api
+  labels:
+    app.kubernetes.io/name: findings-api
+    app.kubernetes.io/part-of: deepscan
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: findings-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: findings-api
+        app.kubernetes.io/part-of: deepscan
+        deepscan.io/db-client: "true"
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: findings-api
+          image: deepscan-findings-api
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+            - secretRef:
+                name: deepscan-db
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: "500m", memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: findings-api
+  labels:
+    app.kubernetes.io/name: findings-api
+    app.kubernetes.io/part-of: deepscan
+spec:
+  selector:
+    app.kubernetes.io/name: findings-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Web UI
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/part-of: deepscan
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dashboard
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dashboard
+        app.kubernetes.io/part-of: deepscan
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: dashboard
+          image: deepscan-dashboard
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+          envFrom:
+            - configMapRef:
+                name: deepscan-config
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: "300m", memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  labels:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/part-of: deepscan
+spec:
+  selector:
+    app.kubernetes.io/name: dashboard
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

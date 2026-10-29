@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Ariada DeepScan overlay",
+  "version": "1.0.0",
+  "description": "Highlights verified accessibility findings from a DeepScan repository scan on the live website built from that repository.",
+  "permissions": ["storage"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [{ "matches": ["<all_urls>"], "js": ["content.js"], "run_at": "document_idle" }],
+  "options_page": "options.html",
+  "action": { "default_title": "Ariada DeepScan" }
+}

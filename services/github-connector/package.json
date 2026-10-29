@@ -1,0 +1,14 @@
+{
+  "name": "@deepscan/github-connector",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "deepscan": { "entries": ["src/index.ts", "src/migrate-cli.ts"], "copy": ["../../fixtures"] },
+  "dependencies": {
+    "@deepscan/contracts": "workspace:*",
+    "@deepscan/platform": "workspace:*",
+    "@fastify/cookie": "^11.0.0",
+    "kysely": "^0.28.0",
+    "zod": "^4.1.12"
+  }
+}

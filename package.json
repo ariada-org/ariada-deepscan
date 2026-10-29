@@ -1,0 +1,25 @@
+{
+  "name": "ariada-deepscan",
+  "private": true,
+  "description": "GitHub App for deep accessibility scanning of whole repositories: LLM agent with built-in RAG (tool calls), deterministic verifier, type-safe contract layer. PA2577 'Build Something' assignment.",
+  "author": "Alekszandr Bricskin",
+  "license": "EUPL-1.2",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "build": "node scripts/bundle.mjs",
+    "dev:db": "bash scripts/dev-db.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

@@ -1,0 +1,37 @@
+# Local run without Kubernetes:  docker compose up --build   →  http://localhost:8080
+x-svc: &svc
+  restart: unless-stopped
+  environment: &env
+    DATABASE_URL: postgres://deepscan:deepscan@postgres:5432/deepscan
+    CONNECTOR_URL: http://github-connector:8080
+    FINDINGS_API_URL: http://findings-api:8080
+    VERIFIER_URL: http://verifier:8080
+    RAG_URL: http://rag-service:8080
+    FIXTURES_DIR: /app/fixtures
+    PUBLIC_URL: http://localhost:8080
+    LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+    ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    MOCK_DELAY_MS: "1200"
+  depends_on:
+    postgres: { condition: service_healthy }
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment: { POSTGRES_USER: deepscan, POSTGRES_PASSWORD: deepscan, POSTGRES_DB: deepscan }
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "deepscan"], interval: 3s, retries: 20 }
+  github-connector: { <<: *svc, build: { context: ., args: { SERVICE: github-connector } } }
+  analysis-agent: { <<: *svc, build: { context: ., args: { SERVICE: analysis-agent } }, deploy: { replicas: 2 } }
+  rag-service:
+    <<: *svc
+    build: { context: ., args: { SERVICE: rag-service } }
+    command: ["sh", "-c", "node ingest.js && node index.js"]
+  verifier: { <<: *svc, build: { context: ., args: { SERVICE: verifier } } }
+  findings-api: { <<: *svc, build: { context: ., args: { SERVICE: findings-api } } }
+  dashboard:
+    <<: *svc
+    build: { context: ., args: { SERVICE: dashboard } }
+    ports: ["8080:8080"]
+volumes:
+  pgdata: {}

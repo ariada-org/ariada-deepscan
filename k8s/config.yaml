@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deepscan-config
+data:
+  LOG_LEVEL: info
+  # Public base URL (used for GitHub OAuth/webhook callbacks and links in PR comments)
+  PUBLIC_URL: http://localhost:8080
+  ALLOW_PUBLIC_SCANS: "true"
+  FIXTURES_DIR: /app/fixtures
+  # service discovery via cluster DNS
+  CONNECTOR_URL: http://github-connector:8080
+  FINDINGS_API_URL: http://findings-api:8080
+  VERIFIER_URL: http://verifier:8080
+  RAG_URL: http://rag-service:8080
+  # analysis agent
+  LLM_PROVIDER: mock            # mock | anthropic | openai (any OpenAI-compatible endpoint, e.g. Ollama)
+  ANTHROPIC_MODEL: claude-sonnet-5-5
+  OPENAI_BASE_URL: http://ollama:11434/v1
+  OPENAI_MODEL: qwen2.5-coder:7b
+  WORKER_CONCURRENCY: "2"
+  MOCK_DELAY_MS: "1500"         # simulated LLM latency so that scaling the agents is visible
+  MAX_FILES_PER_SCAN: "1500"
+  # policy gate: which severities of NEW verified findings fail a PR check
+  POLICY_FAIL_ON: critical,serious
+  DB_POOL_MAX: "5"

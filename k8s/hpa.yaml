@@ -1,0 +1,111 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: analysis-agent
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: analysis-agent }
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 60 }
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+# Each microservice scales independently (requires metrics-server).
+# analysis-agent is mostly I/O bound (LLM latency): queue-length scaling with KEDA is the documented next step.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: verifier
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: verifier }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+# Each microservice scales independently (requires metrics-server).
+# analysis-agent is mostly I/O bound (LLM latency): queue-length scaling with KEDA is the documented next step.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rag-service
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: rag-service }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+# Each microservice scales independently (requires metrics-server).
+# analysis-agent is mostly I/O bound (LLM latency): queue-length scaling with KEDA is the documented next step.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: findings-api
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: findings-api }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+# Each microservice scales independently (requires metrics-server).
+# analysis-agent is mostly I/O bound (LLM latency): queue-length scaling with KEDA is the documented next step.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: github-connector
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: github-connector }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+# Each microservice scales independently (requires metrics-server).
+# analysis-agent is mostly I/O bound (LLM latency): queue-length scaling with KEDA is the documented next step.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dashboard
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: dashboard }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120

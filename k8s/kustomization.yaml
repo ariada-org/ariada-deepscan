@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: deepscan
+labels:
+  - pairs: { app.kubernetes.io/part-of: deepscan }
+resources:
+  - namespace.yaml
+  - config.yaml
+  - postgres.yaml
+  - services.yaml
+  - hpa.yaml
+  - ingress.yaml
+  - networkpolicy.yaml
+# secrets/*.env are git-ignored; ./scripts/deploy.sh creates them from the *.env.example files
+secretGenerator:
+  - name: deepscan-db
+    envs: [secrets/db.env]
+  - name: deepscan-github
+    envs: [secrets/github.env]
+  - name: deepscan-llm
+    envs: [secrets/llm.env]
+generatorOptions:
+  disableNameSuffixHash: true
+# scripts/build-push.sh rewrites these to your Docker Hub account
+images:
+  - name: deepscan-github-connector
+    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-github-connector
+    newTag: "1.0.0"
+  - name: deepscan-analysis-agent
+    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-analysis-agent
+    newTag: "1.0.0"
+  - name: deepscan-rag-service
+    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-rag-service
+    newTag: "1.0.0"
+  - name: deepscan-verifier
+    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-verifier
+    newTag: "1.0.0"
+  - name: deepscan-findings-api
+    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-findings-api
+    newTag: "1.0.0"
+  - name: deepscan-dashboard
+    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-dashboard
+    newTag: "1.0.0"

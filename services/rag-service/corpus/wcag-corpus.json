@@ -1,0 +1,1617 @@
+{
+ "source": "Summaries of W3C WCAG 2.2, Understanding WCAG 2.2, WCAG Techniques and WAI-ARIA Authoring Practices, written for this project; see the linked W3C documents for normative text.",
+ "docs": [
+  {
+   "id": "sc-1.1.1",
+   "kind": "sc",
+   "sc": [
+    "1.1.1"
+   ],
+   "title": "WCAG 2.2 SC 1.1.1",
+   "text": "All non-text content presented to the user (images, icons, image buttons, charts, image maps, CAPTCHAs) has a text alternative that serves the equivalent purpose. Informative images need a concise description of their meaning in context; functional images (an image that is the only content of a link or button) need text describing the action or destination; purely decorative images must be hidden from assistive technology with an empty alt (alt=\"\") or role=presentation. File names, 'image', 'photo' or 'logo' alone are not acceptable alternatives.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.1",
+   "kind": "sc",
+   "sc": [
+    "1.2.1"
+   ],
+   "title": "WCAG 2.2 SC 1.2.1",
+   "text": "Prerecorded audio-only content has a transcript, and prerecorded video-only content has either a transcript or an audio track that presents equivalent information.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.2",
+   "kind": "sc",
+   "sc": [
+    "1.2.2"
+   ],
+   "title": "WCAG 2.2 SC 1.2.2",
+   "text": "Captions are provided for all prerecorded audio content in synchronized media (video with sound), unless the media is itself an alternative for text and is clearly labelled as such.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.3",
+   "kind": "sc",
+   "sc": [
+    "1.2.3"
+   ],
+   "title": "WCAG 2.2 SC 1.2.3",
+   "text": "Prerecorded video in synchronized media has an audio description or a full text alternative (media alternative) describing important visual information.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.4",
+   "kind": "sc",
+   "sc": [
+    "1.2.4"
+   ],
+   "title": "WCAG 2.2 SC 1.2.4",
+   "text": "Captions are provided for all live audio content in synchronized media.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.5",
+   "kind": "sc",
+   "sc": [
+    "1.2.5"
+   ],
+   "title": "WCAG 2.2 SC 1.2.5",
+   "text": "Audio description is provided for all prerecorded video content in synchronized media.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.6",
+   "kind": "sc",
+   "sc": [
+    "1.2.6"
+   ],
+   "title": "WCAG 2.2 SC 1.2.6",
+   "text": "Sign language interpretation is provided for prerecorded audio content in synchronized media.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.7",
+   "kind": "sc",
+   "sc": [
+    "1.2.7"
+   ],
+   "title": "WCAG 2.2 SC 1.2.7",
+   "text": "Where pauses in foreground audio are insufficient for audio description, extended audio description (pausing the video) is provided.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.8",
+   "kind": "sc",
+   "sc": [
+    "1.2.8"
+   ],
+   "title": "WCAG 2.2 SC 1.2.8",
+   "text": "A full text media alternative is provided for all prerecorded synchronized media and video-only media.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.2.9",
+   "kind": "sc",
+   "sc": [
+    "1.2.9"
+   ],
+   "title": "WCAG 2.2 SC 1.2.9",
+   "text": "An alternative for time-based media presenting equivalent information is provided for live audio-only content.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.3.1",
+   "kind": "sc",
+   "sc": [
+    "1.3.1"
+   ],
+   "title": "WCAG 2.2 SC 1.3.1",
+   "text": "Information, structure and relationships conveyed through presentation are programmatically determinable or available in text. Use semantic markup: real headings (h1–h6) for headings and without skipping levels, lists for lists, table markup with header cells for data tables, label elements for form fields, fieldset/legend for groups, and landmarks for page regions. Visual styling alone (bold text, indentation, colour) must not be the only way structure is conveyed.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.3.2",
+   "kind": "sc",
+   "sc": [
+    "1.3.2"
+   ],
+   "title": "WCAG 2.2 SC 1.3.2",
+   "text": "When the sequence of content affects its meaning, a correct reading sequence can be programmatically determined; DOM order should match the meaningful visual order.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.3.3",
+   "kind": "sc",
+   "sc": [
+    "1.3.3"
+   ],
+   "title": "WCAG 2.2 SC 1.3.3",
+   "text": "Instructions do not rely solely on sensory characteristics such as shape, colour, size, visual location, orientation or sound (e.g. 'click the round button on the right').",
+   "url": ""
+  },
+  {
+   "id": "sc-1.3.4",
+   "kind": "sc",
+   "sc": [
+    "1.3.4"
+   ],
+   "title": "WCAG 2.2 SC 1.3.4",
+   "text": "Content does not restrict its view and operation to a single display orientation (portrait or landscape) unless a specific orientation is essential.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.3.5",
+   "kind": "sc",
+   "sc": [
+    "1.3.5"
+   ],
+   "title": "WCAG 2.2 SC 1.3.5",
+   "text": "The purpose of input fields collecting information about the user can be programmatically determined, typically with the HTML autocomplete attribute (autocomplete=\"email\", \"name\", \"tel\" ...).",
+   "url": ""
+  },
+  {
+   "id": "sc-1.3.6",
+   "kind": "sc",
+   "sc": [
+    "1.3.6"
+   ],
+   "title": "WCAG 2.2 SC 1.3.6",
+   "text": "The purpose of user interface components, icons and regions can be programmatically determined.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.1",
+   "kind": "sc",
+   "sc": [
+    "1.4.1"
+   ],
+   "title": "WCAG 2.2 SC 1.4.1",
+   "text": "Colour is not the only visual means of conveying information, indicating an action, prompting a response, or distinguishing an element (e.g. links in text need underline or another non-colour cue; errors need text or icons, not only red).",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.2",
+   "kind": "sc",
+   "sc": [
+    "1.4.2"
+   ],
+   "title": "WCAG 2.2 SC 1.4.2",
+   "text": "If audio on a page plays automatically for more than 3 seconds, a mechanism is available to pause or stop it, or to control its volume independently of the system volume. Autoplaying video with sound violates this unless muted or controllable.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.3",
+   "kind": "sc",
+   "sc": [
+    "1.4.3"
+   ],
+   "title": "WCAG 2.2 SC 1.4.3",
+   "text": "Text and images of text have a contrast ratio of at least 4.5:1 against their background; large text (at least 24px, or 18.66px bold) needs at least 3:1. Incidental text, logos and inactive controls are exempt. Contrast is computed from the relative luminance of foreground and background colours.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.4",
+   "kind": "sc",
+   "sc": [
+    "1.4.4"
+   ],
+   "title": "WCAG 2.2 SC 1.4.4",
+   "text": "Text can be resized up to 200 percent without assistive technology and without loss of content or functionality. Disabling browser zoom (user-scalable=no or maximum-scale below 2 in the viewport meta tag) or using fixed-size text containers that clip content fail this criterion.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.5",
+   "kind": "sc",
+   "sc": [
+    "1.4.5"
+   ],
+   "title": "WCAG 2.2 SC 1.4.5",
+   "text": "If the technologies can achieve the visual presentation, text is used to convey information rather than images of text (except customizable or essential cases such as logos).",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.6",
+   "kind": "sc",
+   "sc": [
+    "1.4.6"
+   ],
+   "title": "WCAG 2.2 SC 1.4.6",
+   "text": "Text has a contrast ratio of at least 7:1, large text at least 4.5:1 (enhanced level).",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.7",
+   "kind": "sc",
+   "sc": [
+    "1.4.7"
+   ],
+   "title": "WCAG 2.2 SC 1.4.7",
+   "text": "Prerecorded audio-only content that contains speech has no or very low background sound, or it can be turned off.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.8",
+   "kind": "sc",
+   "sc": [
+    "1.4.8"
+   ],
+   "title": "WCAG 2.2 SC 1.4.8",
+   "text": "Blocks of text offer user-selectable colours, a width of no more than 80 characters, no justified text, line spacing of at least 1.5 and resizing to 200% without horizontal scrolling.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.9",
+   "kind": "sc",
+   "sc": [
+    "1.4.9"
+   ],
+   "title": "WCAG 2.2 SC 1.4.9",
+   "text": "Images of text are only used for pure decoration or where a particular presentation is essential.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.10",
+   "kind": "sc",
+   "sc": [
+    "1.4.10"
+   ],
+   "title": "WCAG 2.2 SC 1.4.10",
+   "text": "Content can be presented without loss of information or functionality and without scrolling in two dimensions at a width of 320 CSS pixels (vertical scrolling content) or height of 256 CSS pixels.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.11",
+   "kind": "sc",
+   "sc": [
+    "1.4.11"
+   ],
+   "title": "WCAG 2.2 SC 1.4.11",
+   "text": "Visual information required to identify user interface components and their states, and meaningful graphical objects such as icons, have a contrast ratio of at least 3:1 against adjacent colours.",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.12",
+   "kind": "sc",
+   "sc": [
+    "1.4.12"
+   ],
+   "title": "WCAG 2.2 SC 1.4.12",
+   "text": "No loss of content or functionality occurs when users override line height (1.5), paragraph spacing (2x), letter spacing (0.12em) and word spacing (0.16em).",
+   "url": ""
+  },
+  {
+   "id": "sc-1.4.13",
+   "kind": "sc",
+   "sc": [
+    "1.4.13"
+   ],
+   "title": "WCAG 2.2 SC 1.4.13",
+   "text": "Additional content that appears on hover or focus (tooltips, popovers) is dismissible without moving pointer or focus, hoverable, and persistent until dismissed or no longer relevant.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.1.1",
+   "kind": "sc",
+   "sc": [
+    "2.1.1"
+   ],
+   "title": "WCAG 2.2 SC 2.1.1",
+   "text": "All functionality is operable through a keyboard interface without requiring specific timings for individual keystrokes. Click handlers placed on non-interactive elements such as div or span are not reachable or operable with the keyboard unless the element is focusable (tabindex=\"0\"), has an appropriate role and handles Enter/Space. Prefer native button and a elements.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.1.2",
+   "kind": "sc",
+   "sc": [
+    "2.1.2"
+   ],
+   "title": "WCAG 2.2 SC 2.1.2",
+   "text": "If keyboard focus can be moved to a component, focus can also be moved away using only the keyboard; modal dialogs must not trap focus permanently.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.1.3",
+   "kind": "sc",
+   "sc": [
+    "2.1.3"
+   ],
+   "title": "WCAG 2.2 SC 2.1.3",
+   "text": "All functionality is operable through a keyboard interface without exception.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.1.4",
+   "kind": "sc",
+   "sc": [
+    "2.1.4"
+   ],
+   "title": "WCAG 2.2 SC 2.1.4",
+   "text": "If a keyboard shortcut uses only letter, punctuation, number or symbol characters, users can turn it off, remap it, or it is active only when the component has focus.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.2.1",
+   "kind": "sc",
+   "sc": [
+    "2.2.1"
+   ],
+   "title": "WCAG 2.2 SC 2.2.1",
+   "text": "For each time limit set by the content, users can turn it off, adjust it or extend it (with exceptions for real-time events and essential limits).",
+   "url": ""
+  },
+  {
+   "id": "sc-2.2.2",
+   "kind": "sc",
+   "sc": [
+    "2.2.2"
+   ],
+   "title": "WCAG 2.2 SC 2.2.2",
+   "text": "Moving, blinking, scrolling or auto-updating information that starts automatically and lasts more than five seconds can be paused, stopped or hidden by the user.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.2.3",
+   "kind": "sc",
+   "sc": [
+    "2.2.3"
+   ],
+   "title": "WCAG 2.2 SC 2.2.3",
+   "text": "Timing is not an essential part of the event or activity presented by the content.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.2.4",
+   "kind": "sc",
+   "sc": [
+    "2.2.4"
+   ],
+   "title": "WCAG 2.2 SC 2.2.4",
+   "text": "Interruptions can be postponed or suppressed by the user, except those involving an emergency.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.2.5",
+   "kind": "sc",
+   "sc": [
+    "2.2.5"
+   ],
+   "title": "WCAG 2.2 SC 2.2.5",
+   "text": "When an authenticated session expires, the user can continue the activity without loss of data after re-authenticating.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.2.6",
+   "kind": "sc",
+   "sc": [
+    "2.2.6"
+   ],
+   "title": "WCAG 2.2 SC 2.2.6",
+   "text": "Users are warned of the duration of any user inactivity that could cause data loss, unless data is preserved for more than 20 hours.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.3.1",
+   "kind": "sc",
+   "sc": [
+    "2.3.1"
+   ],
+   "title": "WCAG 2.2 SC 2.3.1",
+   "text": "Web pages do not contain anything that flashes more than three times in any one second period, or the flash is below the general and red flash thresholds.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.3.2",
+   "kind": "sc",
+   "sc": [
+    "2.3.2"
+   ],
+   "title": "WCAG 2.2 SC 2.3.2",
+   "text": "Web pages do not contain anything that flashes more than three times in any one second period.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.3.3",
+   "kind": "sc",
+   "sc": [
+    "2.3.3"
+   ],
+   "title": "WCAG 2.2 SC 2.3.3",
+   "text": "Motion animation triggered by interaction can be disabled unless essential; honour prefers-reduced-motion.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.1",
+   "kind": "sc",
+   "sc": [
+    "2.4.1"
+   ],
+   "title": "WCAG 2.2 SC 2.4.1",
+   "text": "A mechanism is available to bypass blocks of content repeated on multiple pages, such as a skip link to the main content, landmarks or headings.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.2",
+   "kind": "sc",
+   "sc": [
+    "2.4.2"
+   ],
+   "title": "WCAG 2.2 SC 2.4.2",
+   "text": "Web pages have titles that describe topic or purpose. Every HTML document needs a non-empty, descriptive title element in the head; single-page applications should update document.title on route changes.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.3",
+   "kind": "sc",
+   "sc": [
+    "2.4.3"
+   ],
+   "title": "WCAG 2.2 SC 2.4.3",
+   "text": "If a page can be navigated sequentially, focusable components receive focus in an order that preserves meaning and operability. Positive tabindex values (tabindex greater than 0) override the natural DOM order and usually break a logical focus order.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.4",
+   "kind": "sc",
+   "sc": [
+    "2.4.4"
+   ],
+   "title": "WCAG 2.2 SC 2.4.4",
+   "text": "The purpose of each link can be determined from the link text alone, or from the link text together with its programmatically determined context. Links without any text (e.g. an icon or image without alt as the only content) have no purpose at all; generic texts such as 'click here', 'read more' or 'more' are ambiguous when read out of context in a links list.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.5",
+   "kind": "sc",
+   "sc": [
+    "2.4.5"
+   ],
+   "title": "WCAG 2.2 SC 2.4.5",
+   "text": "More than one way is available to locate a page within a set of pages (search, site map, navigation), except for steps of a process.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.6",
+   "kind": "sc",
+   "sc": [
+    "2.4.6"
+   ],
+   "title": "WCAG 2.2 SC 2.4.6",
+   "text": "Headings and labels describe topic or purpose. This does not require headings or labels to exist, only that existing ones are descriptive.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.7",
+   "kind": "sc",
+   "sc": [
+    "2.4.7"
+   ],
+   "title": "WCAG 2.2 SC 2.4.7",
+   "text": "Any keyboard-operable user interface has a mode of operation where the keyboard focus indicator is visible. Removing the browser outline (outline: none or outline: 0) on :focus without providing an equally visible replacement (box-shadow, border, background change) fails this criterion.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.8",
+   "kind": "sc",
+   "sc": [
+    "2.4.8"
+   ],
+   "title": "WCAG 2.2 SC 2.4.8",
+   "text": "Information about the user's location within a set of web pages is available (breadcrumbs, site map, current-page indication).",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.9",
+   "kind": "sc",
+   "sc": [
+    "2.4.9"
+   ],
+   "title": "WCAG 2.2 SC 2.4.9",
+   "text": "The purpose of each link can be identified from link text alone.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.10",
+   "kind": "sc",
+   "sc": [
+    "2.4.10"
+   ],
+   "title": "WCAG 2.2 SC 2.4.10",
+   "text": "Section headings are used to organize the content.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.11",
+   "kind": "sc",
+   "sc": [
+    "2.4.11"
+   ],
+   "title": "WCAG 2.2 SC 2.4.11",
+   "text": "When a component receives keyboard focus, it is not entirely hidden by author-created content such as sticky headers, footers or non-modal dialogs.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.12",
+   "kind": "sc",
+   "sc": [
+    "2.4.12"
+   ],
+   "title": "WCAG 2.2 SC 2.4.12",
+   "text": "When a component receives keyboard focus, no part of it is hidden by author-created content.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.4.13",
+   "kind": "sc",
+   "sc": [
+    "2.4.13"
+   ],
+   "title": "WCAG 2.2 SC 2.4.13",
+   "text": "The keyboard focus indicator has an area at least as large as a 2 CSS pixel perimeter of the component and a 3:1 contrast change between focused and unfocused states.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.1",
+   "kind": "sc",
+   "sc": [
+    "2.5.1"
+   ],
+   "title": "WCAG 2.2 SC 2.5.1",
+   "text": "All functionality that uses multipoint or path-based gestures can be operated with a single pointer without a path-based gesture, unless essential.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.2",
+   "kind": "sc",
+   "sc": [
+    "2.5.2"
+   ],
+   "title": "WCAG 2.2 SC 2.5.2",
+   "text": "For single-pointer functionality, the down-event is not used to execute a function, or completion can be aborted or undone (activate on up-event).",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.3",
+   "kind": "sc",
+   "sc": [
+    "2.5.3"
+   ],
+   "title": "WCAG 2.2 SC 2.5.3",
+   "text": "For user interface components with visible text labels, the accessible name contains the text that is presented visually (ideally starting with it), so speech-input users can activate controls by saying what they see.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.4",
+   "kind": "sc",
+   "sc": [
+    "2.5.4"
+   ],
+   "title": "WCAG 2.2 SC 2.5.4",
+   "text": "Functionality operated by device motion or user motion can also be operated by UI components, and motion actuation can be disabled.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.5",
+   "kind": "sc",
+   "sc": [
+    "2.5.5"
+   ],
+   "title": "WCAG 2.2 SC 2.5.5",
+   "text": "The size of pointer targets is at least 44 by 44 CSS pixels, with exceptions.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.6",
+   "kind": "sc",
+   "sc": [
+    "2.5.6"
+   ],
+   "title": "WCAG 2.2 SC 2.5.6",
+   "text": "Content does not restrict use of input modalities available on a platform.",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.7",
+   "kind": "sc",
+   "sc": [
+    "2.5.7"
+   ],
+   "title": "WCAG 2.2 SC 2.5.7",
+   "text": "All functionality that uses a dragging movement can be achieved by a single pointer without dragging (e.g. buttons as an alternative to drag-and-drop).",
+   "url": ""
+  },
+  {
+   "id": "sc-2.5.8",
+   "kind": "sc",
+   "sc": [
+    "2.5.8"
+   ],
+   "title": "WCAG 2.2 SC 2.5.8",
+   "text": "Pointer targets are at least 24 by 24 CSS pixels, or have sufficient spacing, with exceptions for inline links and user-agent controls.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.1.1",
+   "kind": "sc",
+   "sc": [
+    "3.1.1"
+   ],
+   "title": "WCAG 2.2 SC 3.1.1",
+   "text": "The default human language of each web page can be programmatically determined, normally with the lang attribute on the html element (e.g. <html lang=\"en\">). Screen readers use it to choose pronunciation rules.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.1.2",
+   "kind": "sc",
+   "sc": [
+    "3.1.2"
+   ],
+   "title": "WCAG 2.2 SC 3.1.2",
+   "text": "The human language of each passage or phrase in the content can be programmatically determined (lang attribute on the element containing the passage), except proper names and technical terms.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.1.3",
+   "kind": "sc",
+   "sc": [
+    "3.1.3"
+   ],
+   "title": "WCAG 2.2 SC 3.1.3",
+   "text": "A mechanism is available for identifying specific definitions of words or phrases used in an unusual or restricted way, including idioms and jargon.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.1.4",
+   "kind": "sc",
+   "sc": [
+    "3.1.4"
+   ],
+   "title": "WCAG 2.2 SC 3.1.4",
+   "text": "A mechanism for identifying the expanded form or meaning of abbreviations is available.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.1.5",
+   "kind": "sc",
+   "sc": [
+    "3.1.5"
+   ],
+   "title": "WCAG 2.2 SC 3.1.5",
+   "text": "When text requires reading ability more advanced than lower secondary education level, supplemental content or a simpler version is available.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.1.6",
+   "kind": "sc",
+   "sc": [
+    "3.1.6"
+   ],
+   "title": "WCAG 2.2 SC 3.1.6",
+   "text": "A mechanism is available for identifying the specific pronunciation of words where meaning is ambiguous without knowing the pronunciation.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.2.1",
+   "kind": "sc",
+   "sc": [
+    "3.2.1"
+   ],
+   "title": "WCAG 2.2 SC 3.2.1",
+   "text": "When any user interface component receives focus, it does not initiate a change of context (no automatic navigation, form submission or new window on focus).",
+   "url": ""
+  },
+  {
+   "id": "sc-3.2.2",
+   "kind": "sc",
+   "sc": [
+    "3.2.2"
+   ],
+   "title": "WCAG 2.2 SC 3.2.2",
+   "text": "Changing the setting of any user interface component does not automatically cause a change of context unless the user has been advised beforehand (e.g. a select that navigates on change).",
+   "url": ""
+  },
+  {
+   "id": "sc-3.2.3",
+   "kind": "sc",
+   "sc": [
+    "3.2.3"
+   ],
+   "title": "WCAG 2.2 SC 3.2.3",
+   "text": "Navigational mechanisms repeated on multiple pages occur in the same relative order each time they are repeated.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.2.4",
+   "kind": "sc",
+   "sc": [
+    "3.2.4"
+   ],
+   "title": "WCAG 2.2 SC 3.2.4",
+   "text": "Components with the same functionality within a set of pages are identified consistently.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.2.5",
+   "kind": "sc",
+   "sc": [
+    "3.2.5"
+   ],
+   "title": "WCAG 2.2 SC 3.2.5",
+   "text": "Changes of context are initiated only by user request or a mechanism is available to turn them off.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.2.6",
+   "kind": "sc",
+   "sc": [
+    "3.2.6"
+   ],
+   "title": "WCAG 2.2 SC 3.2.6",
+   "text": "If help mechanisms (contact details, chat, self-help) are repeated on multiple pages, they occur in the same relative order.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.1",
+   "kind": "sc",
+   "sc": [
+    "3.3.1"
+   ],
+   "title": "WCAG 2.2 SC 3.3.1",
+   "text": "If an input error is automatically detected, the item in error is identified and the error is described to the user in text; error messages should be programmatically associated (aria-describedby) and announced.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.2",
+   "kind": "sc",
+   "sc": [
+    "3.3.2"
+   ],
+   "title": "WCAG 2.2 SC 3.3.2",
+   "text": "Labels or instructions are provided when content requires user input. A placeholder is not a substitute for a persistent label because it disappears on input and often has poor contrast.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.3",
+   "kind": "sc",
+   "sc": [
+    "3.3.3"
+   ],
+   "title": "WCAG 2.2 SC 3.3.3",
+   "text": "If an input error is automatically detected and suggestions for correction are known, the suggestions are provided to the user unless that would jeopardize security.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.4",
+   "kind": "sc",
+   "sc": [
+    "3.3.4"
+   ],
+   "title": "WCAG 2.2 SC 3.3.4",
+   "text": "For pages that cause legal commitments or financial transactions, modify or delete user data, or submit test responses, submissions are reversible, checked for errors, or confirmed before finalizing.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.5",
+   "kind": "sc",
+   "sc": [
+    "3.3.5"
+   ],
+   "title": "WCAG 2.2 SC 3.3.5",
+   "text": "Context-sensitive help is available.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.6",
+   "kind": "sc",
+   "sc": [
+    "3.3.6"
+   ],
+   "title": "WCAG 2.2 SC 3.3.6",
+   "text": "For pages that require the user to submit information, submissions are reversible, checked or confirmed.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.7",
+   "kind": "sc",
+   "sc": [
+    "3.3.7"
+   ],
+   "title": "WCAG 2.2 SC 3.3.7",
+   "text": "Information previously entered by or provided to the user that is required again in the same process is auto-populated or available to select.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.8",
+   "kind": "sc",
+   "sc": [
+    "3.3.8"
+   ],
+   "title": "WCAG 2.2 SC 3.3.8",
+   "text": "A cognitive function test (remembering a password, solving a puzzle) is not required for any step in an authentication process unless an alternative, a mechanism to assist (paste, password managers), or object recognition is provided.",
+   "url": ""
+  },
+  {
+   "id": "sc-3.3.9",
+   "kind": "sc",
+   "sc": [
+    "3.3.9"
+   ],
+   "title": "WCAG 2.2 SC 3.3.9",
+   "text": "A cognitive function test is not required for any step in an authentication process, without the object-recognition and personal-content exceptions.",
+   "url": ""
+  },
+  {
+   "id": "sc-4.1.2",
+   "kind": "sc",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "WCAG 2.2 SC 4.1.2",
+   "text": "For all user interface components (form controls, links, buttons, custom widgets, frames), the name and role can be programmatically determined; states, properties and values can be set programmatically, and changes are notified to assistive technologies. Icon-only buttons need an accessible name via text, aria-label or aria-labelledby; form inputs need labels; iframes need a title; custom controls built from div/span need an ARIA role. Focusable elements must not be hidden with aria-hidden=\"true\".",
+   "url": ""
+  },
+  {
+   "id": "sc-4.1.3",
+   "kind": "sc",
+   "sc": [
+    "4.1.3"
+   ],
+   "title": "WCAG 2.2 SC 4.1.3",
+   "text": "Status messages (success, results counts, errors not receiving focus, progress) can be programmatically determined through role or properties (role=status, role=alert, aria-live) so assistive technologies announce them without moving focus.",
+   "url": ""
+  },
+  {
+   "id": "understanding-1.1.1",
+   "kind": "understanding",
+   "sc": [
+    "1.1.1"
+   ],
+   "title": "Understanding SC 1.1.1",
+   "text": "Intent: people who cannot see images rely on text alternatives read by screen readers or shown when images fail. Common mistakes: missing alt attribute (screen readers then announce the file name), alt text that repeats the file name, alt='image', redundant 'image of', and decorative images with non-empty alt. For icon-only links and buttons the alternative must describe the function (e.g. 'Search', 'Close dialog', 'Instagram'), not the picture. Dynamic alt bound from data is fine if the data holds real descriptions.",
+   "url": ""
+  },
+  {
+   "id": "understanding-1.3.1",
+   "kind": "understanding",
+   "sc": [
+    "1.3.1"
+   ],
+   "title": "Understanding SC 1.3.1",
+   "text": "Intent: structure that sighted users perceive visually must be available to assistive technology. Skipped heading levels (h1 followed by h3) make the outline confusing for screen-reader users who navigate by headings. Inputs without labels, layout tables used for data without th, and div-based lists are typical failures.",
+   "url": ""
+  },
+  {
+   "id": "understanding-1.4.3",
+   "kind": "understanding",
+   "sc": [
+    "1.4.3"
+   ],
+   "title": "Understanding SC 1.4.3",
+   "text": "Intent: users with low vision or colour deficiency need enough contrast. The ratio ranges from 1:1 to 21:1. #767676 on white is the lightest grey that passes 4.5:1; #aaaaaa on white is about 2.3:1 and fails. White text on orange (#ff9900) is about 2.1:1 and fails for normal text. Placeholder text and error messages in light red commonly fail.",
+   "url": ""
+  },
+  {
+   "id": "understanding-1.4.4",
+   "kind": "understanding",
+   "sc": [
+    "1.4.4"
+   ],
+   "title": "Understanding SC 1.4.4",
+   "text": "Intent: people with low vision zoom in. A viewport meta tag with user-scalable=no or maximum-scale=1 blocks pinch-zoom on mobile and fails resize text; text in fixed-height containers that clip on zoom also fails.",
+   "url": ""
+  },
+  {
+   "id": "understanding-2.1.1",
+   "kind": "understanding",
+   "sc": [
+    "2.1.1"
+   ],
+   "title": "Understanding SC 2.1.1",
+   "text": "Intent: keyboard-only users and switch, voice and screen-reader users depend on keyboard operability. A div with onClick looks like a button but cannot be focused with Tab or activated with Enter/Space. Fix: use <button type=\"button\">; if a custom element is unavoidable, add role=\"button\", tabindex=\"0\" and an onKeyDown handler for Enter and Space.",
+   "url": ""
+  },
+  {
+   "id": "understanding-2.4.2",
+   "kind": "understanding",
+   "sc": [
+    "2.4.2"
+   ],
+   "title": "Understanding SC 2.4.2",
+   "text": "Intent: titles identify the page in tabs, history and screen-reader announcements. Each page should have a unique title describing its purpose, e.g. 'Checkout – Nordic Outdoor Gear'.",
+   "url": ""
+  },
+  {
+   "id": "understanding-2.4.3",
+   "kind": "understanding",
+   "sc": [
+    "2.4.3"
+   ],
+   "title": "Understanding SC 2.4.3",
+   "text": "Intent: focus order must follow meaning. tabindex values greater than zero create a separate tab sequence that is visited before everything else and becomes unmaintainable; use tabindex=\"0\" and DOM order instead.",
+   "url": ""
+  },
+  {
+   "id": "understanding-2.4.4",
+   "kind": "understanding",
+   "sc": [
+    "2.4.4"
+   ],
+   "title": "Understanding SC 2.4.4",
+   "text": "Intent: screen-reader users often list all links on a page; 'Read more' repeated ten times is meaningless. Include the destination in the text ('Read more about the winter collection') or use aria-label / visually hidden text. An image-only link needs alt text describing the destination.",
+   "url": ""
+  },
+  {
+   "id": "understanding-2.4.7",
+   "kind": "understanding",
+   "sc": [
+    "2.4.7"
+   ],
+   "title": "Understanding SC 2.4.7",
+   "text": "Intent: sighted keyboard users must see where focus is. outline:none on :focus is the most common failure; use :focus-visible styles with a clear outline or box-shadow of sufficient contrast instead of removing them.",
+   "url": ""
+  },
+  {
+   "id": "understanding-3.1.1",
+   "kind": "understanding",
+   "sc": [
+    "3.1.1"
+   ],
+   "title": "Understanding SC 3.1.1",
+   "text": "Intent: correct language lets screen readers pronounce text correctly and lets browsers translate and hyphenate. Add lang to the html element; for multilingual sites set it per page.",
+   "url": ""
+  },
+  {
+   "id": "understanding-3.3.2",
+   "kind": "understanding",
+   "sc": [
+    "3.3.2"
+   ],
+   "title": "Understanding SC 3.3.2",
+   "text": "Intent: users need to know what to enter. Visible labels that persist are best. Placeholder-only fields fail because the hint disappears while typing and is usually low-contrast.",
+   "url": ""
+  },
+  {
+   "id": "understanding-4.1.2",
+   "kind": "understanding",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "Understanding SC 4.1.2",
+   "text": "Intent: assistive technologies need the name, role and state of every control. Typical failures: icon-only buttons (<button><svg/></button>) with no aria-label, inputs without label association, iframes without title, custom widgets made of div/span with click handlers but no role, links with only an unlabelled image. Fix with native elements first, ARIA second.",
+   "url": ""
+  },
+  {
+   "id": "H37",
+   "kind": "technique",
+   "sc": [
+    "1.1.1"
+   ],
+   "title": "H37: Using alt attributes on img elements",
+   "text": "Provide a text alternative in the alt attribute of img that conveys the same information or function as the image. Example: <img src=\"logo.svg\" alt=\"Nordic Outdoor Gear – home\"> inside a home link.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H37"
+  },
+  {
+   "id": "H67",
+   "kind": "technique",
+   "sc": [
+    "1.1.1"
+   ],
+   "title": "H67: Using null alt text and no title attribute on img elements for images that assistive technology should ignore",
+   "text": "Decorative images get alt=\"\" (empty, not missing) and no title, so screen readers skip them.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H67"
+  },
+  {
+   "id": "G94",
+   "kind": "technique",
+   "sc": [
+    "1.1.1"
+   ],
+   "title": "G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information",
+   "text": "Write a short alternative that does the same job as the image in its context.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G94"
+  },
+  {
+   "id": "H2",
+   "kind": "technique",
+   "sc": [
+    "1.1.1",
+    "2.4.4"
+   ],
+   "title": "H2: Combining adjacent image and text links for the same resource",
+   "text": "When an image and text link point to the same place, put both in one link and give the image alt=\"\" to avoid duplicate announcements.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H2"
+  },
+  {
+   "id": "F65",
+   "kind": "failure",
+   "sc": [
+    "1.1.1"
+   ],
+   "title": "F65: Failure due to omitting the alt attribute or text alternative on img elements, area elements, and input elements of type image",
+   "text": "An img without alt (and without aria-label/aria-labelledby) fails 1.1.1; screen readers may read the file name instead.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F65"
+  },
+  {
+   "id": "F30",
+   "kind": "failure",
+   "sc": [
+    "1.1.1",
+    "1.2.1"
+   ],
+   "title": "F30: Failure due to using text alternatives that are not alternatives (e.g. filenames or placeholder text)",
+   "text": "alt=\"image\", alt=\"photo\", alt=\"IMG_0042.jpg\" or alt equal to the file name are not real alternatives.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F30"
+  },
+  {
+   "id": "ARIA6",
+   "kind": "technique",
+   "sc": [
+    "1.1.1",
+    "4.1.2"
+   ],
+   "title": "ARIA6: Using aria-label to provide labels for objects",
+   "text": "aria-label provides an accessible name when no visible text exists, e.g. <button aria-label=\"Open menu\"><svg aria-hidden=\"true\">…</svg></button>.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA6"
+  },
+  {
+   "id": "ARIA16",
+   "kind": "technique",
+   "sc": [
+    "1.3.1",
+    "4.1.2"
+   ],
+   "title": "ARIA16: Using aria-labelledby to provide a name for user interface controls",
+   "text": "Point aria-labelledby at the id of visible text that names the control.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA16"
+  },
+  {
+   "id": "H44",
+   "kind": "technique",
+   "sc": [
+    "1.1.1",
+    "1.3.1",
+    "3.3.2",
+    "4.1.2"
+   ],
+   "title": "H44: Using label elements to associate text labels with form controls",
+   "text": "Use <label for=\"id\"> matching the input id, or wrap the input in <label>. In React use htmlFor.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H44"
+  },
+  {
+   "id": "H65",
+   "kind": "technique",
+   "sc": [
+    "1.3.1",
+    "3.3.2",
+    "4.1.2"
+   ],
+   "title": "H65: Using the title attribute to identify form controls when the label element cannot be used",
+   "text": "title can name a control when a visible label is impossible, though a visible label is preferred.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H65"
+  },
+  {
+   "id": "F68",
+   "kind": "failure",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "F68: Failure of Success Criterion 4.1.2 due to a user interface control not having a programmatically determined name",
+   "text": "Inputs with only a placeholder, icon buttons without text or aria-label, and unlabeled selects fail.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F68"
+  },
+  {
+   "id": "F59",
+   "kind": "failure",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "F59: Failure due to using script to make a div or span a user interface control in HTML without providing a role for the control",
+   "text": "A div with onclick acting as a button must expose role=button (and be keyboard operable) or be replaced with <button>.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F59"
+  },
+  {
+   "id": "H91",
+   "kind": "technique",
+   "sc": [
+    "2.1.1",
+    "4.1.2"
+   ],
+   "title": "H91: Using HTML form controls and links",
+   "text": "Native controls (button, a href, input, select) provide name, role, state and keyboard support automatically.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H91"
+  },
+  {
+   "id": "F54",
+   "kind": "failure",
+   "sc": [
+    "2.1.1"
+   ],
+   "title": "F54: Failure due to using only pointing-device-specific event handlers for a function",
+   "text": "onclick/onmousedown on non-focusable elements without keyboard equivalents fails keyboard accessibility.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F54"
+  },
+  {
+   "id": "SCR35",
+   "kind": "technique",
+   "sc": [
+    "2.1.1"
+   ],
+   "title": "SCR35: Making actions keyboard accessible by using the onclick event of anchors and buttons",
+   "text": "Attach click behaviour to a or button elements, which fire click on Enter/Space.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/client-side-script/SCR35"
+  },
+  {
+   "id": "G202",
+   "kind": "technique",
+   "sc": [
+    "2.1.1"
+   ],
+   "title": "G202: Ensuring keyboard control for all functionality",
+   "text": "Every action available by mouse must be available by keyboard.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G202"
+  },
+  {
+   "id": "F44",
+   "kind": "failure",
+   "sc": [
+    "2.4.3"
+   ],
+   "title": "F44: Failure due to using tabindex to create a tab order that does not preserve meaning and operability",
+   "text": "Positive tabindex values create an unexpected focus order.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F44"
+  },
+  {
+   "id": "H4",
+   "kind": "technique",
+   "sc": [
+    "2.4.3"
+   ],
+   "title": "H4: Creating a logical tab order through links, form controls, and objects",
+   "text": "Order the DOM logically; avoid positive tabindex.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H4"
+  },
+  {
+   "id": "H57",
+   "kind": "technique",
+   "sc": [
+    "3.1.1"
+   ],
+   "title": "H57: Using the language attribute on the HTML element",
+   "text": "Set <html lang=\"en\"> (or sv, de, …) with a valid BCP 47 code.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H57"
+  },
+  {
+   "id": "H58",
+   "kind": "technique",
+   "sc": [
+    "3.1.2"
+   ],
+   "title": "H58: Using language attributes to identify changes in the human language",
+   "text": "Mark foreign-language passages with lang on the containing element.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H58"
+  },
+  {
+   "id": "H25",
+   "kind": "technique",
+   "sc": [
+    "2.4.2"
+   ],
+   "title": "H25: Providing a title using the title element",
+   "text": "Every document has a <title> in <head> that identifies the page.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H25"
+  },
+  {
+   "id": "F25",
+   "kind": "failure",
+   "sc": [
+    "2.4.2"
+   ],
+   "title": "F25: Failure due to the title of a Web page not identifying the contents",
+   "text": "Titles like 'Untitled' or the same title on every page fail.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F25"
+  },
+  {
+   "id": "H64",
+   "kind": "technique",
+   "sc": [
+    "2.4.1",
+    "4.1.2"
+   ],
+   "title": "H64: Using the title attribute of the frame and iframe elements",
+   "text": "<iframe title=\"Store location map\" …> gives the frame an accessible name.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H64"
+  },
+  {
+   "id": "G18",
+   "kind": "technique",
+   "sc": [
+    "1.4.3"
+   ],
+   "title": "G18: Ensuring that a contrast ratio of at least 4.5:1 exists between text and background",
+   "text": "Compute (L1+0.05)/(L2+0.05) from relative luminance; normal text needs ≥ 4.5:1.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G18"
+  },
+  {
+   "id": "G145",
+   "kind": "technique",
+   "sc": [
+    "1.4.3"
+   ],
+   "title": "G145: Ensuring that a contrast ratio of at least 3:1 exists between large text and background",
+   "text": "Large text (≥24px or ≥18.66px bold) needs ≥ 3:1.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G145"
+  },
+  {
+   "id": "F24",
+   "kind": "failure",
+   "sc": [
+    "1.4.3",
+    "1.4.6",
+    "1.4.8"
+   ],
+   "title": "F24: Failure due to specifying foreground colors without specifying background colors or vice versa",
+   "text": "Set both colour and background so user style sheets cannot produce invisible text.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F24"
+  },
+  {
+   "id": "G207",
+   "kind": "technique",
+   "sc": [
+    "1.4.11"
+   ],
+   "title": "G207: Ensuring that a contrast ratio of 3:1 is provided for icons",
+   "text": "Meaningful icons and control boundaries need 3:1 against adjacent colours.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G207"
+  },
+  {
+   "id": "F78",
+   "kind": "failure",
+   "sc": [
+    "2.4.7"
+   ],
+   "title": "F78: Failure due to styling element outlines and borders in a way that removes or renders non-visible the visual focus indicator",
+   "text": "outline:none/0 on :focus without an alternative focus style fails.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F78"
+  },
+  {
+   "id": "C40",
+   "kind": "technique",
+   "sc": [
+    "2.4.7",
+    "1.4.11"
+   ],
+   "title": "C40: Creating a two-color focus indicator to ensure sufficient contrast with all components",
+   "text": "Use an outline plus box-shadow in contrasting colours, e.g. outline:2px solid #fff; box-shadow:0 0 0 4px #000.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/css/C40"
+  },
+  {
+   "id": "G195",
+   "kind": "technique",
+   "sc": [
+    "2.4.7"
+   ],
+   "title": "G195: Using an author-supplied, visible focus indicator",
+   "text": "Provide a clear custom :focus-visible style rather than relying on (or removing) the default.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G195"
+  },
+  {
+   "id": "G91",
+   "kind": "technique",
+   "sc": [
+    "2.4.4",
+    "2.4.9"
+   ],
+   "title": "G91: Providing link text that describes the purpose of a link",
+   "text": "Link text should say where the link goes or what it does.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G91"
+  },
+  {
+   "id": "H30",
+   "kind": "technique",
+   "sc": [
+    "1.1.1",
+    "2.4.4",
+    "2.4.9"
+   ],
+   "title": "H30: Providing link text that describes the purpose of a link for anchor elements",
+   "text": "The text content of <a> (or alt of its image) describes the destination.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H30"
+  },
+  {
+   "id": "ARIA7",
+   "kind": "technique",
+   "sc": [
+    "2.4.4",
+    "2.4.9"
+   ],
+   "title": "ARIA7: Using aria-labelledby for link purpose",
+   "text": "Combine link text with other visible text via aria-labelledby.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA7"
+  },
+  {
+   "id": "ARIA8",
+   "kind": "technique",
+   "sc": [
+    "2.4.4",
+    "2.4.9"
+   ],
+   "title": "ARIA8: Using aria-label for link purpose",
+   "text": "aria-label on a link supplies a full description when the visible text is short.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA8"
+  },
+  {
+   "id": "F89",
+   "kind": "failure",
+   "sc": [
+    "2.4.4",
+    "2.4.9",
+    "4.1.2"
+   ],
+   "title": "F89: Failure due to not providing an accessible name for an image which is the only content in a link",
+   "text": "<a href=\"/\"><img src=\"logo.svg\"></a> without alt makes the link nameless.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F89"
+  },
+  {
+   "id": "F84",
+   "kind": "failure",
+   "sc": [
+    "2.4.9"
+   ],
+   "title": "F84: Failure due to using a non-specific link such as 'click here' or 'more' without a mechanism to change the link text to specific text",
+   "text": "Generic link texts fail Link Purpose (Link Only); they may pass 2.4.4 only if the surrounding context identifies the purpose programmatically.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F84"
+  },
+  {
+   "id": "H42",
+   "kind": "technique",
+   "sc": [
+    "1.3.1"
+   ],
+   "title": "H42: Using h1-h6 to identify headings",
+   "text": "Mark headings with h1–h6 in hierarchical order without skipping levels.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H42"
+  },
+  {
+   "id": "G141",
+   "kind": "technique",
+   "sc": [
+    "1.3.1",
+    "2.4.10"
+   ],
+   "title": "G141: Organizing a page using headings",
+   "text": "Headings create an outline used for navigation by assistive technology.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G141"
+  },
+  {
+   "id": "H63",
+   "kind": "technique",
+   "sc": [
+    "1.3.1"
+   ],
+   "title": "H63: Using the scope attribute to associate header cells and data cells in data tables",
+   "text": "Use th with scope=col/row in data tables.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H63"
+  },
+  {
+   "id": "H48",
+   "kind": "technique",
+   "sc": [
+    "1.3.1"
+   ],
+   "title": "H48: Using ol, ul and dl for lists or groups of links",
+   "text": "Navigation link groups and lists use list markup.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H48"
+  },
+  {
+   "id": "ARIA11",
+   "kind": "technique",
+   "sc": [
+    "1.3.1",
+    "2.4.1"
+   ],
+   "title": "ARIA11: Using ARIA landmarks to identify regions of a page",
+   "text": "Use header, nav, main, footer or ARIA roles so users can jump between regions.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA11"
+  },
+  {
+   "id": "G1",
+   "kind": "technique",
+   "sc": [
+    "2.4.1"
+   ],
+   "title": "G1: Adding a link at the top of each page that goes directly to the main content area",
+   "text": "A 'Skip to main content' link lets keyboard users bypass navigation.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G1"
+  },
+  {
+   "id": "H98",
+   "kind": "technique",
+   "sc": [
+    "1.3.5"
+   ],
+   "title": "H98: Using HTML autocomplete attributes",
+   "text": "autocomplete=\"email\", \"given-name\", \"cc-number\" identifies input purpose.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/html/H98"
+  },
+  {
+   "id": "F93",
+   "kind": "failure",
+   "sc": [
+    "1.4.2"
+   ],
+   "title": "F93: Failure for absence of a way to pause or stop an HTML5 media element that autoplays",
+   "text": "<video autoplay> with sound and no controls fails; add muted or controls.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F93"
+  },
+  {
+   "id": "G170",
+   "kind": "technique",
+   "sc": [
+    "1.4.2"
+   ],
+   "title": "G170: Providing a control near the beginning of the Web page that turns off sounds that play automatically",
+   "text": "Offer pause/stop/mute for auto-playing audio.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G170"
+  },
+  {
+   "id": "F96",
+   "kind": "failure",
+   "sc": [
+    "2.5.3"
+   ],
+   "title": "F96: Failure due to the accessible name not containing the visible label text",
+   "text": "aria-label that differs from the visible text breaks speech input.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F96"
+  },
+  {
+   "id": "G208",
+   "kind": "technique",
+   "sc": [
+    "2.5.3"
+   ],
+   "title": "G208: Including the text of the visible label as part of the accessible name",
+   "text": "Start the accessible name with the visible label.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G208"
+  },
+  {
+   "id": "C39",
+   "kind": "technique",
+   "sc": [
+    "2.3.3"
+   ],
+   "title": "C39: Using the CSS prefers-reduced-motion query to prevent motion",
+   "text": "Disable non-essential animation when prefers-reduced-motion: reduce.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/css/C39"
+  },
+  {
+   "id": "ARIA19",
+   "kind": "technique",
+   "sc": [
+    "3.3.1",
+    "4.1.3"
+   ],
+   "title": "ARIA19: Using ARIA role=alert or Live Regions to Identify Errors",
+   "text": "Error text in role=alert is announced immediately.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA19"
+  },
+  {
+   "id": "ARIA22",
+   "kind": "technique",
+   "sc": [
+    "4.1.3"
+   ],
+   "title": "ARIA22: Using role=status to present status messages",
+   "text": "Status messages like '3 results found' go in role=status.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA22"
+  },
+  {
+   "id": "G83",
+   "kind": "technique",
+   "sc": [
+    "3.3.1"
+   ],
+   "title": "G83: Providing text descriptions to identify required fields that were not completed",
+   "text": "Describe the error in text next to the field and associate it with aria-describedby.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G83"
+  },
+  {
+   "id": "G131",
+   "kind": "technique",
+   "sc": [
+    "2.4.6",
+    "3.3.2"
+   ],
+   "title": "G131: Providing descriptive labels",
+   "text": "Labels describe the expected input precisely.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/general/G131"
+  },
+  {
+   "id": "F55",
+   "kind": "failure",
+   "sc": [
+    "2.1.1",
+    "2.4.7",
+    "3.2.1"
+   ],
+   "title": "F55: Failure due to using script to remove focus when focus is received",
+   "text": "Calling blur() on focus makes controls unreachable.",
+   "url": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F55"
+  },
+  {
+   "id": "apg-button",
+   "kind": "aria",
+   "sc": [
+    "4.1.2",
+    "2.1.1"
+   ],
+   "title": "ARIA Authoring Practices: Button pattern",
+   "text": "A custom button needs role=button, tabindex=0, activation on Enter and Space, and an accessible name. Toggle buttons expose aria-pressed. Prefer the native <button> element, which provides all of this.",
+   "url": "https://www.w3.org/WAI/ARIA/apg/patterns/"
+  },
+  {
+   "id": "apg-dialog",
+   "kind": "aria",
+   "sc": [
+    "4.1.2",
+    "2.1.2",
+    "2.4.3"
+   ],
+   "title": "ARIA Authoring Practices: Dialog (Modal) pattern",
+   "text": "A modal dialog uses role=dialog with aria-modal=true and a name via aria-labelledby; focus moves into the dialog on open, Tab is contained within it, Escape closes it, and focus returns to the invoking element. The close button needs an accessible name such as aria-label=\"Close\".",
+   "url": "https://www.w3.org/WAI/ARIA/apg/patterns/"
+  },
+  {
+   "id": "apg-disclosure",
+   "kind": "aria",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "ARIA Authoring Practices: Disclosure (Show/Hide) pattern",
+   "text": "A button controlling collapsible content exposes aria-expanded and optionally aria-controls; hamburger menu toggles are disclosures and need a name like 'Menu'.",
+   "url": "https://www.w3.org/WAI/ARIA/apg/patterns/"
+  },
+  {
+   "id": "apg-menu-button",
+   "kind": "aria",
+   "sc": [
+    "4.1.2",
+    "2.1.1"
+   ],
+   "title": "ARIA Authoring Practices: Menu Button pattern",
+   "text": "A button that opens a menu has aria-haspopup and aria-expanded; arrow keys move within the menu.",
+   "url": "https://www.w3.org/WAI/ARIA/apg/patterns/"
+  },
+  {
+   "id": "apg-tabs",
+   "kind": "aria",
+   "sc": [
+    "4.1.2",
+    "1.3.1"
+   ],
+   "title": "ARIA Authoring Practices: Tabs pattern",
+   "text": "role=tablist containing role=tab elements with aria-selected and aria-controls pointing to role=tabpanel; arrow keys switch tabs.",
+   "url": "https://www.w3.org/WAI/ARIA/apg/patterns/"
+  },
+  {
+   "id": "aria-hidden-focus",
+   "kind": "aria",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "Do not use aria-hidden=\"true\" on focusable elements",
+   "text": "aria-hidden removes an element from the accessibility tree, but a focusable element inside it still receives keyboard focus, producing an 'empty' focus stop. Remove aria-hidden or make the element unfocusable.",
+   "url": "https://www.w3.org/TR/using-aria/"
+  },
+  {
+   "id": "first-rule-of-aria",
+   "kind": "aria",
+   "sc": [
+    "4.1.2"
+   ],
+   "title": "First rule of ARIA use",
+   "text": "If a native HTML element with the required semantics and behaviour exists (button, a, input, select), use it instead of re-purposing a div or span with ARIA.",
+   "url": "https://www.w3.org/TR/using-aria/"
+  }
+ ]
+}

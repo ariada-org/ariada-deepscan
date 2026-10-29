@@ -1,0 +1,13 @@
+{
+  "name": "@deepscan/findings-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "deepscan": { "entries": ["src/index.ts"] },
+  "dependencies": {
+    "@deepscan/contracts": "workspace:*",
+    "@deepscan/platform": "workspace:*",
+    "kysely": "^0.28.0",
+    "zod": "^4.1.12"
+  }
+}

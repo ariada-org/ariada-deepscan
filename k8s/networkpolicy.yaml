@@ -1,0 +1,129 @@
+# Zero-trust networking inside the namespace (enforced by CNIs such as Calico/Cilium;
+# ignored by clusters without NetworkPolicy support, e.g. Docker Desktop's default CNI).
+# 1) deny everything, 2) allow DNS, 3) allow exactly the calls in the architecture diagram.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: default-deny }
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-dns }
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: kube-system } }
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+---
+# Only pods labelled deepscan.io/db-client may talk to Postgres
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: postgres }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: postgres } }
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { deepscan.io/db-client: "true" } } }]
+      ports: [{ port: 5432 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: db-clients-egress }
+spec:
+  podSelector: { matchLabels: { deepscan.io/db-client: "true" } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app.kubernetes.io/name: postgres } } }]
+      ports: [{ port: 5432 }]
+---
+# Public entry points: reachable from the ingress controller (and from the dashboard's proxy)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: public-entrypoints }
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [dashboard, findings-api, github-connector] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ingress-nginx } }
+        - podSelector: { matchLabels: { app.kubernetes.io/name: dashboard } }
+      ports: [{ port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: dashboard-egress }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: dashboard } }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: { matchLabels: { app.kubernetes.io/name: findings-api } }
+        - podSelector: { matchLabels: { app.kubernetes.io/name: github-connector } }
+      ports: [{ port: 8080 }]
+---
+# Agent tool back-ends: only the analysis agent may call them (connector's /internal API, RAG, verifier)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: agent-tool-backends }
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [github-connector, rag-service, verifier] }
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/name: analysis-agent } } }]
+      ports: [{ port: 8080 }]
+---
+# The connector's publisher calls findings-api (diff) and verifier (policy)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: connector-callees }
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [findings-api, verifier] }
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/name: github-connector } } }]
+      ports: [{ port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: agent-egress }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: analysis-agent } }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: { matchLabels: { app.kubernetes.io/name: github-connector } }
+        - podSelector: { matchLabels: { app.kubernetes.io/name: rag-service } }
+        - podSelector: { matchLabels: { app.kubernetes.io/name: verifier } }
+      ports: [{ port: 8080 }]
+    # LLM API over HTTPS only; private ranges and the cloud metadata endpoint are excluded
+    - to:
+        - ipBlock: { cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16] }
+      ports: [{ port: 443 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: connector-egress }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: github-connector } }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: { matchLabels: { app.kubernetes.io/name: findings-api } }
+        - podSelector: { matchLabels: { app.kubernetes.io/name: verifier } }
+      ports: [{ port: 8080 }]
+    # GitHub API / raw content over HTTPS only
+    - to:
+        - ipBlock: { cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16] }
+      ports: [{ port: 443 }]

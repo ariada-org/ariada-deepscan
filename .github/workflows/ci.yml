@@ -1,0 +1,100 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  # Full deployment test: build all images, deploy the k8s/ manifests to a real
+  # Kubernetes cluster (kind), scan the demo repository and check the results.
+  e2e-kubernetes:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SERVICES: github-connector analysis-agent rag-service verifier findings-api dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build images
+        run: for s in $SERVICES; do docker build -q --build-arg SERVICE=$s -t deepscan-$s:ci . ; done
+      - uses: helm/kind-action@v1
+        with: { cluster_name: deepscan }
+      - name: Load images into the cluster
+        run: for s in $SERVICES; do kind load docker-image deepscan-$s:ci --name deepscan; done
+      - name: Deploy (kubectl apply -k k8s/)
+        run: |
+          for f in db github llm; do cp k8s/secrets/$f.env.example k8s/secrets/$f.env; done
+          sed -i "s/change-me/$(openssl rand -hex 12)/g" k8s/secrets/db.env
+          cd k8s && for s in $SERVICES; do kustomize edit set image deepscan-$s=deepscan-$s:ci; done && cd ..
+          sed -i 's/MOCK_DELAY_MS: "1500"/MOCK_DELAY_MS: "300"/' k8s/config.yaml
+          kubectl apply -k k8s/
+          kubectl -n deepscan rollout status statefulset/postgres --timeout=300s
+          for s in $SERVICES; do kubectl -n deepscan rollout status deploy/$s --timeout=300s; done
+          kubectl -n deepscan get pods,svc,pvc,hpa,ingress,networkpolicy -o wide
+      - name: Scan the demo repository through the dashboard
+        run: |
+          kubectl -n deepscan port-forward svc/dashboard 8080:8080 >/tmp/pf.log 2>&1 &
+          sleep 5
+          REPO=$(curl -fsS localhost:8080/api/repos | jq -r '.repos[] | select(.source=="fixture") | .id')
+          SCAN=$(curl -fsS -X POST localhost:8080/gh/scans -H 'content-type: application/json' -d "{\"repoId\":\"$REPO\"}" | jq -r .scanId)
+          echo "scan $SCAN"
+          for i in $(seq 1 90); do
+            P=$(curl -fsS localhost:8080/api/scans/$SCAN/progress); echo "$P" | jq -c '{status,byStatus,pods,findings}'
+            [ "$(echo "$P" | jq -r .status)" = completed ] && break; sleep 3
+          done
+          test "$(echo "$P" | jq -r .status)" = completed
+          test "$(echo "$P" | jq -r '.findings.verified')" -ge 20
+          test "$(echo "$P" | jq -r '.pods | length')" -ge 2   # work was shared by both agent replicas
+      - name: Data survives a database pod restart (PVC)
+        run: |
+          kubectl -n deepscan delete pod postgres-0
+          kubectl -n deepscan rollout status statefulset/postgres --timeout=300s
+          sleep 5
+          kubectl -n deepscan port-forward svc/dashboard 8081:8080 >/tmp/pf2.log 2>&1 &
+          sleep 5
+          curl -fsS localhost:8081/api/repos | jq -e '.repos[] | select(.source=="fixture") | .lastScan.status == "completed"'
+      - name: Logs
+        if: always()
+        run: |
+          kubectl -n deepscan get events --sort-by=.lastTimestamp | tail -40 || true
+          for s in $SERVICES; do echo "== $s"; kubectl -n deepscan logs deploy/$s --all-containers --tail=30 || true; done
+
+  # Pushes multi-arch images to Docker Hub when the repository secrets
+  # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are set.
+  publish:
+    needs: e2e-kubernetes
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.DOCKERHUB_USERNAME != ''
+      - uses: docker/setup-qemu-action@v3
+        if: env.DOCKERHUB_USERNAME != ''
+      - uses: docker/setup-buildx-action@v3
+        if: env.DOCKERHUB_USERNAME != ''
+      - uses: docker/login-action@v3
+        if: env.DOCKERHUB_USERNAME != ''
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        if: env.DOCKERHUB_USERNAME != ''
+        run: |
+          for s in github-connector analysis-agent rag-service verifier findings-api dashboard; do
+            docker buildx build --platform linux/amd64,linux/arm64 --build-arg SERVICE=$s \
+              -t docker.io/$DOCKERHUB_USERNAME/deepscan-$s:1.0.0 -t docker.io/$DOCKERHUB_USERNAME/deepscan-$s:latest --push .
+          done

@@ -1,0 +1,22 @@
+# Single entry point (gateway routing). /internal/* endpoints are deliberately NOT routed.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deepscan
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 5m
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: findings-api, port: { number: 8080 } } }
+          - path: /gh
+            pathType: Prefix
+            backend: { service: { name: github-connector, port: { number: 8080 } } }
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: dashboard, port: { number: 8080 } } }
