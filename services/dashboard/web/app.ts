@@ -50,6 +50,23 @@ const statusPill = (s: string, label = s) => h("span", { class: `pill s-${s}` },
 const VERDICT_LABEL: Record<string, string> = { verified: "✓ Verified", unverifiable: "? Needs review", rejected: "✕ Rejected" };
 const verdictPill = (v: string) => h("span", { class: `pill v-${v}` }, VERDICT_LABEL[v] ?? v);
 
+/* A finished file is coloured by its most severe verified finding; with none verified it is either
+   waiting for a human (unverifiable findings only) or clean. Every colour also has a glyph. */
+type Outcome = "critical" | "serious" | "moderate" | "minor" | "review" | "clean";
+const OUTCOMES: { key: Outcome; glyph: string; label: string }[] = [
+  { key: "critical", glyph: "‼", label: "Critical" },
+  { key: "serious", glyph: "!", label: "Serious" },
+  { key: "moderate", glyph: "◆", label: "Moderate" },
+  { key: "minor", glyph: "•", label: "Minor" },
+  { key: "review", glyph: "?", label: "Needs human review" },
+  { key: "clean", glyph: "✓", label: "No issues" },
+];
+const OUTCOME = new Map(OUTCOMES.map((o) => [o.key, o]));
+const outcomeOf = (f: FileNode): Outcome | null =>
+  f.status !== "done" ? null : f.worstSeverity ?? (f.unverifiable ? "review" : "clean");
+const outcomeChip = (o: Outcome, text = OUTCOME.get(o)!.label) =>
+  h("span", { class: "chip", "data-outcome": o }, h("span", { "aria-hidden": "true" }, OUTCOME.get(o)!.glyph), ` ${text}`);
+
 let stopPolling: (() => void) | null = null;
 function setPage(title: string, ...nodes: Node[]) {
   document.title = `${title} – Ariada DeepScan`;
@@ -228,27 +245,33 @@ async function scanPage(id: string) {
     const files = st.tree?.files ?? [];
     const p = st.progress;
     const done = p?.byStatus["done"] ?? 0;
-    const cells = files.map((f) =>
-      h("button", {
-        type: "button", class: "cell", "data-status": f.status, "aria-current": st.selected === f.path ? "true" : null,
-        title: `${f.path} — ${f.status}${f.workerPod ? ` (${shortPod(f.workerPod)})` : ""}`,
-        "aria-label": `${f.path}: ${f.status}${f.workerPod ? `, analysed by ${shortPod(f.workerPod)}` : ""}`,
+    const perOutcome = new Map<Outcome, number>();
+    const cells = files.map((f) => {
+      const o = outcomeOf(f);
+      if (o) perOutcome.set(o, (perOutcome.get(o) ?? 0) + 1);
+      const state = o ? OUTCOME.get(o)!.label.toLowerCase() : f.status === "analyzing" ? "analysing" : f.status;
+      return h("button", {
+        type: "button", class: "cell", "data-status": f.status, "data-outcome": o, "aria-current": st.selected === f.path ? "true" : null,
+        title: `${f.path} — ${state}${f.workerPod ? ` (${shortPod(f.workerPod)})` : ""}`,
+        "aria-label": `${f.path}: ${state}${f.workerPod ? `, analysed by ${shortPod(f.workerPod)}` : ""}`,
         onclick: () => select(f.path),
-      }));
-    cells.forEach((c, i) => { const f = files[i]!; if (f.workerPod) c.style.setProperty("--pod", podVar(f.workerPod)!); });
-    const pods = (p?.pods ?? []).map((x) => h("span", {}, h("span", { class: "swatch", style: { background: podVar(x.pod) } }), h("span", { class: "mono" }, shortPod(x.pod)), ` ${x.files} file${x.files === 1 ? "" : "s"}`));
+      }, h("span", { "aria-hidden": "true" }, o ? OUTCOME.get(o)!.glyph : ""));
+    });
+    const failed = files.filter((f) => f.status === "error").length;
+    const pods = (p?.pods ?? []).map((x) => h("span", {}, h("span", { class: "swatch", style: { background: podVar(x.pod), borderRadius: "50%" } }), h("span", { class: "mono" }, shortPod(x.pod)), ` ${x.files} file${x.files === 1 ? "" : "s"}`));
     ribbonBox.replaceChildren(
       h("h2", { id: "ribbon-h", class: "visually-hidden" }, "Scan progress"),
       h("div", { class: "ribbon", role: "group", "aria-label": `${done} of ${files.length} files analysed` }, cells),
       h("div", { class: "legend" },
-        h("span", {}, h("span", { class: "swatch", style: { background: "#dde2ea" } }), "Queued"),
-        h("span", {}, h("span", { class: "swatch", style: { background: "var(--marker)", boxShadow: "inset 0 -3px 0 var(--ink)" } }), "Analysing now"),
-        pods.length ? h("span", {}, "Done, by agent pod:") : null,
-        ...pods,
+        h("span", {}, h("span", { class: "swatch", "data-status": "queued" }), "Queued"),
+        h("span", {}, h("span", { class: "swatch", "data-status": "analyzing" }), "Analysing now"),
+        ...OUTCOMES.map((o) => h("span", {}, h("span", { class: "swatch", "data-outcome": o.key, "aria-hidden": "true" }, o.glyph), `${o.label}: ${perOutcome.get(o.key) ?? 0}`)),
+        failed ? h("span", {}, h("span", { class: "swatch", "data-status": "error" }), `Analysis failed: ${failed}`) : null,
       ),
+      ...(pods.length ? [h("div", { class: "legend legend-pods" }, h("span", {}, "Agent pods (dot in the file list):"), ...pods)] : []),
       h("div", { class: "counts" },
         h("div", {}, h("strong", {}, `${done}/${files.length}`), h("span", {}, "files analysed")),
-        h("div", {}, h("strong", { class: "v-verified" }, String(p?.findings["verified"] ?? 0)), h("span", {}, "verified issues")),
+        h("div", {}, h("strong", {}, String(p?.findings["verified"] ?? 0)), h("span", {}, "verified issues")),
         h("div", {}, h("strong", { class: "v-unverifiable" }, String(p?.findings["unverifiable"] ?? 0)), h("span", {}, "need human review")),
         h("div", {}, h("strong", { class: "v-rejected" }, String(p?.findings["rejected"] ?? 0)), h("span", {}, "AI claims rejected")),
       ),
@@ -264,11 +287,10 @@ async function scanPage(id: string) {
         h("span", { class: "name" }, h("span", { class: "podchip", style: f.workerPod ? { background: podVar(f.workerPod) } : {}, "aria-hidden": "true" }), f.path.split("/").pop()!),
         f.status === "done"
           ? h("span", { class: "tally" },
-              f.verified ? h("span", { class: "t v-verified", title: "verified" }, `✓${f.verified}`) : null,
-              f.unverifiable ? h("span", { class: "t v-unverifiable", title: "needs review" }, `?${f.unverifiable}`) : null,
-              f.rejected ? h("span", { class: "t v-rejected", title: "rejected" }, `✕${f.rejected}`) : null,
-              !f.verified && !f.unverifiable && !f.rejected ? h("span", { class: "t v-verified" }, "clean") : null,
-              h("span", { class: "visually-hidden" }, `${f.verified} verified, ${f.unverifiable} need review, ${f.rejected} rejected`))
+              outcomeChip(outcomeOf(f)!, f.verified ? String(f.verified) : outcomeOf(f) === "review" ? "review" : "clean"),
+              f.unverifiable && f.verified ? h("span", { class: "t v-unverifiable", title: "needs review" }, `?${f.unverifiable}`) : null,
+              f.rejected ? h("span", { class: "t v-rejected", title: "AI claims rejected" }, `✕${f.rejected}`) : null,
+              h("span", { class: "visually-hidden" }, `: worst ${f.worstSeverity ?? "none"}; ${f.verified} verified, ${f.unverifiable} need review, ${f.rejected} rejected`))
           : h("span", { class: `state s-${f.status}` }, f.status === "analyzing" ? "analysing…" : f.status)));
     const renderDir = (d: ReturnType<typeof buildTree>, pre: string): HTMLElement[] => [
       ...[...d.dirs.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([name, child]) => {
@@ -313,7 +335,7 @@ async function scanPage(id: string) {
       h("div", { class: "top" },
         verdictPill(f.status),
         h("a", { class: "sc", href: understandingUrl(f.sc as WcagSc), target: "_blank", rel: "noopener" }, `WCAG ${f.sc} ${scTitle(f.sc)}`),
-        h("span", { class: "pill" }, f.severity),
+        outcomeChip(f.severity, f.severity),
         h("span", { class: "src" }, f.source === "llm" ? "AI agent" : `rule ${f.ruleId}`),
       ),
       h("div", { class: "where" }, `${f.path}:${f.line}`, f.workerPod ? ` (${shortPod(f.workerPod)})` : ""),

@@ -103,6 +103,10 @@ Each microservice is a Deployment with its own Service, its own HorizontalPodAut
 
 PostgreSQL is a StatefulSet whose `volumeClaimTemplate` keeps data across pod and cluster restarts. The RAG corpus is loaded by an init container of `rag-service`; it is idempotent and runs under a Postgres advisory lock, as do the schema migrations. Configuration lives in a ConfigMap. Secrets are three Kustomize-generated Secrets: database, GitHub App and LLM, each mounted only into the services that need it. The namespace enforces the Pod Security *restricted* profile.
 
+The language model is not part of the deployment. It is an external endpoint that `analysis-agent` calls over REST: a local Ollama server with `qwen2.5-coder:7b` in the demo, a hosted model in production. The same goes for the GitHub REST API. All six microservices in the cluster were written for this project; the only third-party container is PostgreSQL.
+
+On scale, honestly: one course demo with a sixteen-file repository would run fine in a single process. To see why the split makes sense, picture an organisation with a few hundred repositories, where every pull request starts a scan and each file costs several seconds of model time. Then the job queue fills faster than one agent can drain it, and adding agent replicas is the only knob that matters. The demo shows this by running three agent replicas against one scan.
+
 ### Testing
 
 - 20 unit tests: rules and verifier, contract layer, webhook signatures and sanitising. Typecheck of all services, including the browser code.

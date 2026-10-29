@@ -116,6 +116,8 @@ export const FileNode = z.object({
   status: FileStatus,
   workerPod: z.string().nullable(),
   verified: z.number().int(),
+  /** the most severe verified finding in the file; null when none is verified. Colours the dashboard ribbon. */
+  worstSeverity: Severity.nullable(),
   unverifiable: z.number().int(),
   rejected: z.number().int(),
   durationMs: z.number().int().nullable(),

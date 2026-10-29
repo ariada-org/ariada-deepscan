@@ -10,6 +10,8 @@
   --review: #8a5a00;
   --muted: #5f6b7d;
   --bad: #b3261e;
+  /* file outcome, worst first; text colour on each is at least 4.5:1 */
+  --o-critical: #7f1d1d; --o-serious: #c62828; --o-moderate: #e8590c; --o-minor: #f2c200; --o-review: #6d28d9; --o-clean: #1e7a46;
   --pod-0: #2457c5; --pod-1: #8e3fb5; --pod-2: #0f7c86; --pod-3: #b0451f; --pod-4: #5b6b00; --pod-5: #b8326b;
   --font: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -74,7 +76,8 @@ th { font-weight: 600; color: var(--ink-soft); font-size: .9rem; }
 
 /* status pills: text + shape, never colour alone */
 .pill { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
-.s-completed, .v-verified { color: var(--ok); }
+.s-completed { color: var(--ok); }
+.v-verified { color: var(--ink); }
 .s-running, .s-queued, .s-ingesting, .s-analyzing { color: var(--blue); }
 .s-failed, .s-error { color: var(--bad); }
 .v-unverifiable { color: var(--review); }
@@ -87,17 +90,26 @@ th { font-weight: 600; color: var(--ink-soft); font-size: .9rem; }
 /* the ribbon: one cell per file */
 .ribbon-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 1rem; margin-bottom: 1rem; }
 .ribbon { display: flex; flex-wrap: wrap; gap: 3px; }
-.cell { width: 18px; height: 34px; border-radius: 3px; background: #dde2ea; border: 0; padding: 0; position: relative; cursor: pointer; }
-.cell[data-status="analyzing"] { background: var(--marker); box-shadow: inset 0 -5px 0 var(--ink); }
-.cell[data-status="done"] { background: var(--pod, var(--ink)); }
-.cell[data-status="error"] { background: repeating-linear-gradient(45deg, var(--bad) 0 4px, #fff 4px 7px); }
+.cell { width: 18px; height: 34px; border-radius: 3px; background: #dde2ea; border: 0; padding: 0; position: relative; cursor: pointer; display: grid; place-items: center; font-size: 12px; font-weight: 800; line-height: 1; }
+[data-status="queued"] { background: #dde2ea; }
+[data-status="analyzing"] { background: var(--blue); box-shadow: inset 0 -5px 0 var(--ink); }
+[data-status="error"] { background: repeating-linear-gradient(45deg, var(--muted) 0 4px, #fff 4px 7px); }
+[data-outcome="critical"] { background: var(--o-critical); color: #fff; }
+[data-outcome="serious"] { background: var(--o-serious); color: #fff; }
+[data-outcome="moderate"] { background: var(--o-moderate); color: var(--ink); }
+[data-outcome="minor"] { background: var(--o-minor); color: var(--ink); }
+[data-outcome="review"] { background: var(--o-review); color: #fff; }
+[data-outcome="clean"] { background: var(--o-clean); color: #fff; }
+.chip { display: inline-flex; align-items: center; gap: .15rem; font-size: .78rem; font-weight: 700; padding: .05rem .45rem; border-radius: 999px; white-space: nowrap; }
 .cell[aria-current="true"] { outline: 3px solid var(--ink); outline-offset: 2px; }
 @media (prefers-reduced-motion: no-preference) {
   .cell[data-status="analyzing"] { animation: pulse 1.1s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scaleY(.82); } }
 }
 .legend { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .9rem; font-size: .9rem; align-items: center; }
-.legend .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: .35rem; vertical-align: -1px; }
+.legend .swatch { width: 16px; height: 16px; border-radius: 3px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1; margin-right: .35rem; vertical-align: -3px; }
+.legend-pods { margin-top: .4rem; color: var(--ink-soft); }
+.legend-pods .swatch { width: 10px; height: 10px; vertical-align: 0; }
 .counts { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: .9rem; }
 .counts div { display: grid; }
 .counts strong { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
@@ -129,7 +141,7 @@ th { font-weight: 600; color: var(--ink-soft); font-size: .9rem; }
 .finding .sc { font-weight: 800; }
 .finding .where { font-family: var(--mono); font-size: .85rem; color: var(--ink-soft); }
 .finding pre { margin: 0; background: #f4f6fa; border: 1px solid var(--line); border-left: 4px solid var(--ink-soft); padding: .55rem .7rem; overflow-x: auto; border-radius: 4px; }
-.finding[data-v="verified"] pre { border-left-color: var(--ok); }
+.finding[data-v="verified"] pre { border-left-color: var(--o-serious); }
 .finding[data-v="unverifiable"] pre { border-left-color: var(--review); }
 .finding[data-v="rejected"] { color: var(--muted); }
 .finding[data-v="rejected"] .msg { text-decoration: line-through; }

@@ -68,9 +68,11 @@ app.get("/api/scans/:id", { schema: { ...scanParams, response: { 200: ScanSummar
 app.get("/api/scans/:id/tree", { schema: { ...scanParams, response: { 200: TreeResponse, 404: ErrorResponse } } }, async (req, reply) => {
   const s = await visibleScan(req.params.id, req.headers.cookie);
   if (!s) return reply.code(404).send({ error: "not found" });
-  const rows = await sql<{ path: string; status: string; locked_by: string | null; duration_ms: number | null; cache_hit: boolean; error: string | null; verified: number; unverifiable: number; rejected: number }>`
+  const rows = await sql<{ path: string; status: string; locked_by: string | null; duration_ms: number | null; cache_hit: boolean; error: string | null; verified: number; worst_severity: string | null; unverifiable: number; rejected: number }>`
     SELECT j.path, j.status, j.locked_by, j.duration_ms, j.cache_hit, j.error,
       count(f.id) FILTER (WHERE f.status = 'verified')::int AS verified,
+      (array_agg(f.severity ORDER BY array_position(ARRAY['critical', 'serious', 'moderate', 'minor'], f.severity))
+        FILTER (WHERE f.status = 'verified'))[1] AS worst_severity,
       count(f.id) FILTER (WHERE f.status = 'unverifiable')::int AS unverifiable,
       count(f.id) FILTER (WHERE f.status = 'rejected')::int AS rejected
     FROM scan_jobs j LEFT JOIN findings f ON f.scan_id = j.scan_id AND f.path = j.path
@@ -78,7 +80,7 @@ app.get("/api/scans/:id/tree", { schema: { ...scanParams, response: { 200: TreeR
     GROUP BY j.id ORDER BY j.path`.execute(db);
   return TreeResponse.parse({
     scan: s.summary,
-    files: rows.rows.map((r) => ({ path: r.path, status: r.status, workerPod: r.locked_by, verified: r.verified, unverifiable: r.unverifiable, rejected: r.rejected, durationMs: r.duration_ms, cacheHit: r.cache_hit, error: r.error })),
+    files: rows.rows.map((r) => ({ path: r.path, status: r.status, workerPod: r.locked_by, verified: r.verified, worstSeverity: r.worst_severity, unverifiable: r.unverifiable, rejected: r.rejected, durationMs: r.duration_ms, cacheHit: r.cache_hit, error: r.error })),
   });
 });
 
