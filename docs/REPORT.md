@@ -1,4 +1,4 @@
-# Build Something — Ariada DeepScan
+# Build Something - Ariada DeepScan
 
 *PA2577 Applied Cloud Computing and Big Data · Alekszandr Bricskin*
 
@@ -99,7 +99,7 @@ The same diagram as text:
 - **CQRS-lite.** Writes go through the connector and the agents. All reads for the UI, the plugin and the publisher go through `findings-api`.
 - **Gateway routing.** One Ingress maps `/` to the dashboard, `/api` to findings-api and `/gh` to the connector. `/internal/*` is never routed.
 - **Cache-aside.** Installation tokens are cached for 55 minutes, file contents by blob SHA, and analysis results by `hash(prompt version, model, content)`. Unchanged files therefore cost no LLM call on the next scan.
-- **Generator–verifier.** The LLM proposes and deterministic code decides. The type layer, the verifier and the human reviewer are three successive filters against hallucinations.
+- **Generator-verifier.** The LLM proposes and deterministic code decides. The type layer, the verifier and the human reviewer are three successive filters against hallucinations.
 
 ### Deployment
 
