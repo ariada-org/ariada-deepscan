@@ -13,7 +13,7 @@ function provider(): LlmProvider {
     if (!env.ANTHROPIC_API_KEY) throw new Error("LLM_PROVIDER=anthropic requires ANTHROPIC_API_KEY");
     return new AnthropicProvider(env.ANTHROPIC_MODEL, env.ANTHROPIC_API_KEY, env.ANTHROPIC_BASE_URL);
   }
-  if (env.LLM_PROVIDER === "openai") return new OpenAiProvider(env.OPENAI_MODEL, env.OPENAI_API_KEY, env.OPENAI_BASE_URL);
+  if (env.LLM_PROVIDER === "openai") return new OpenAiProvider(env.OPENAI_MODEL, env.OPENAI_API_KEY, env.OPENAI_BASE_URL, env.LLM_TIMEOUT_MS);
   return new MockProvider(env.MOCK_DELAY_MS, env.MOCK_HALLUCINATE_RATE);
 }
 

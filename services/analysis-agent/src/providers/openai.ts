@@ -20,14 +20,41 @@ function toOpenAi(m: Msg) {
   return m.results.map((r) => ({ role: "tool", tool_call_id: r.id, content: r.content }));
 }
 
+/**
+ * Some local models (qwen2.5-coder through Ollama, for one) write their tool calls into the message
+ * text as JSON objects instead of the tool_calls field, so the server never parses them. Read them
+ * back from the text: every top-level {"name": <known tool>, "arguments": {...}} object counts.
+ */
+export function toolCallsFromText(text: string, known: ReadonlySet<string>): { name: string; args: unknown }[] {
+  const out: { name: string; args: unknown }[] = [];
+  let depth = 0, start = -1, inStr = false, esc = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+    } else if (c === '"') inStr = depth > 0;
+    else if (c === "{") { if (depth++ === 0) start = i; }
+    else if (c === "}" && depth > 0 && --depth === 0) {
+      try {
+        const o = JSON.parse(text.slice(start, i + 1)) as { name?: unknown; arguments?: unknown; parameters?: unknown };
+        const raw = o.arguments ?? o.parameters ?? {};
+        if (typeof o.name === "string" && known.has(o.name)) out.push({ name: o.name, args: typeof raw === "string" ? JSON.parse(raw) : raw });
+      } catch { /* not a tool call */ }
+    }
+  }
+  return out;
+}
+
 export class OpenAiProvider implements LlmProvider {
   readonly name = "openai";
-  constructor(readonly model: string, private key: string, private baseUrl: string) {}
+  constructor(readonly model: string, private key: string, private baseUrl: string, private timeoutMs = 240_000) {}
   async complete(req: CompletionRequest): Promise<Completion> {
     const r = await callJson({
       url: `${this.baseUrl.replace(/\/$/, "")}/chat/completions`,
       schema: Resp,
-      timeoutMs: 180_000,
+      timeoutMs: this.timeoutMs,
       headers: { authorization: `Bearer ${this.key}` },
       body: {
         model: this.model, temperature: 0,
@@ -45,6 +72,10 @@ export class OpenAiProvider implements LlmProvider {
       }
       return { id: t.id, name: t.function.name, args };
     });
+    if (!toolCalls.length && msg.content) {
+      const known = new Set(req.tools.map((t) => t.name));
+      toolCallsFromText(msg.content, known).forEach((t, i) => toolCalls.push({ id: `text_${req.messages.length}_${i}`, ...t }));
+    }
     return { text: msg.content ?? null, toolCalls, usage: r.usage ? { input: r.usage.prompt_tokens, output: r.usage.completion_tokens } : undefined };
   }
 }

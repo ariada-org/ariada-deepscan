@@ -28,7 +28,7 @@ images:
     newTag: "1.0.0"
   - name: deepscan-analysis-agent
     newName: docker.io/ariadaorg/deepscan-analysis-agent
-    newTag: "1.1.0"
+    newTag: "1.1.3"
   - name: deepscan-rag-service
     newName: docker.io/ariadaorg/deepscan-rag-service
     newTag: "1.0.0"
@@ -40,4 +40,4 @@ images:
     newTag: "1.1.0"
   - name: deepscan-dashboard
     newName: docker.io/ariadaorg/deepscan-dashboard
-    newTag: "1.1.0"
+    newTag: "1.1.5"

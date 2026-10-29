@@ -16,11 +16,13 @@ type Scan = z.output<typeof ScanSummary>;
 
 const GhConfig = z.object({ appConfigured: z.boolean(), signInEnabled: z.boolean(), installUrl: z.string().nullable(), publicScans: z.boolean() });
 
-class ApiError extends Error {}
+class ApiError extends Error {
+  constructor(message: string, readonly status = 0) { super(message); }
+}
 async function api<S extends z.ZodType>(url: string, schema: S, init?: RequestInit): Promise<z.output<S>> {
   const res = await fetch(url, { credentials: "same-origin", ...init, headers: { accept: "application/json", ...(init?.body ? { "content-type": "application/json" } : {}) } });
   const body = await res.json().catch(() => null);
-  if (!res.ok) throw new ApiError((body as { error?: string } | null)?.error ?? `Request failed (${res.status})`);
+  if (!res.ok) throw new ApiError((body as { error?: string } | null)?.error ?? `Request failed (${res.status})`, res.status);
   const parsed = schema.safeParse(body);
   if (!parsed.success) throw new ApiError(`The server answered in an unexpected format (${url}).`);
   return parsed.data;
@@ -255,8 +257,10 @@ async function scanPage(id: string) {
   setPage("Scan", nav, head, ribbonBox, h("div", { class: "split" }, treeBox, findBox));
   let history: Scan[] | null = null;
   let lastStatus = "";
+  // Folders start open; one the user closes stays closed. Tracked per folder, because the tree is
+  // still empty while the scan is ingesting and its folders only appear on a later poll.
   const openDirs = new Set<string>();
-  let dirsInitialised = false;
+  const seenDirs = new Set<string>();
 
   const select = (path: string | null) => {
     st.selected = path;
@@ -326,7 +330,9 @@ async function scanPage(id: string) {
   function renderTree() {
     const files = st.tree?.files ?? [];
     const root = buildTree(files);
-    if (!dirsInitialised) { const walk = (d: ReturnType<typeof buildTree>, pre: string) => { for (const [n, c] of d.dirs) { openDirs.add(pre + n); walk(c, pre + n + "/"); } }; walk(root, ""); dirsInitialised = true; }
+    const walk = (d: ReturnType<typeof buildTree>, pre: string) => { for (const [n, c] of d.dirs) { const k = pre + n; if (!seenDirs.has(k)) { seenDirs.add(k); openDirs.add(k); } walk(c, k + "/"); } };
+    walk(root, "");
+    const analysing = files.filter((f) => f.status === "analyzing");
     const fileRow = (f: FileNode) =>
       h("li", {}, h("button", { type: "button", class: "file", "aria-current": st.selected === f.path ? "true" : null, onclick: () => select(f.path) },
         h("span", { class: "name" }, h("span", { class: "podchip", style: f.workerPod ? { background: podVar(f.workerPod) } : {}, "aria-hidden": "true" }), f.path.split("/").pop()!),
@@ -348,6 +354,11 @@ async function scanPage(id: string) {
     ];
     treeBox.replaceChildren(
       h("div", { class: "toolbar" }, h("h2", { id: "tree-h" }, "Files"), st.selected ? h("button", { type: "button", class: "linkish", onclick: () => select(null) }, "Show all findings") : null),
+      ...(analysing.length
+        ? [h("div", { class: "now" }, h("span", {}, h("span", { class: "swatch", "data-status": "analyzing" }), "Analysing now"),
+            ...analysing.map((f) => h("button", { type: "button", class: "nowitem mono", title: `${f.path}${f.workerPod ? ` — ${shortPod(f.workerPod)}` : ""}`, onclick: () => select(f.path) },
+              h("span", { class: "podchip", style: f.workerPod ? { background: podVar(f.workerPod) } : {}, "aria-hidden": "true" }), f.path.split("/").pop()!)))]
+        : []),
       files.length ? h("ul", { class: "tree" }, renderDir(root, "")) : h("p", { class: "empty" }, st.tree?.scan.status === "ingesting" ? "Reading the repository tree…" : "No markup or style files to analyse."),
     );
   }
@@ -409,8 +420,16 @@ async function scanPage(id: string) {
       }
       return progress.status === "completed" || progress.status === "failed";
     } catch (e) {
-      head.replaceChildren(h("p", { class: "error", role: "alert" }, (e as Error).message));
-      return true;
+      // A scan that does not exist ends the page; anything else (a database hiccup under load, a pod
+      // restarting) is temporary, so the page says so and keeps polling instead of freezing.
+      const gone = e instanceof ApiError && e.status === 404;
+      if (gone || !st.tree) {
+        head.replaceChildren(h("p", { class: "error", role: "alert" }, (e as Error).message));
+        return gone;
+      }
+      renderHead();
+      head.append(h("p", { class: "error", role: "status" }, `Lost contact with the server (${(e as Error).message}). Retrying…`));
+      return false;
     }
   }
   let stopped = false;

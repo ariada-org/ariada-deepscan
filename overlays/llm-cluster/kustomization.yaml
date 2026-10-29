@@ -1,0 +1,27 @@
+# Real model inside the cluster: an Ollama pod (CPU only) with a small coding model.
+# No GPU, no API key and nothing installed on the host, at the price of speed.
+#   LLM=cluster ./scripts/kind-up.sh     (or: kubectl apply -k overlays/llm-cluster)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: deepscan
+resources:
+  - ../../k8s
+  - ollama.yaml
+patches:
+  - target: { kind: ConfigMap, name: deepscan-config }
+    patch: |-
+      - op: replace
+        path: /data/LLM_PROVIDER
+        value: openai
+      - op: replace
+        path: /data/OPENAI_MODEL
+        value: qwen2.5-coder:1.5b
+      # the full name: Ollama answers 403 to a Host header it does not know (its DNS-rebinding
+      # guard), and lets names ending in .local through
+      - op: replace
+        path: /data/OPENAI_BASE_URL
+        value: http://ollama.deepscan.svc.cluster.local:11434/v1
+      # one model serves every agent pod: one request per pod keeps the queue shorter than the lease
+      - op: replace
+        path: /data/WORKER_CONCURRENCY
+        value: "1"

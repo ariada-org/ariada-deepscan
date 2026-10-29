@@ -1,0 +1,96 @@
+# Ollama as a cluster service; the overlay points the agents at it by its full name.
+# alpine/ollama is a CPU-only build (about 30 MB, against 3 GB for the CUDA image), which is all a
+# laptop cluster can use: containers on a Mac get no GPU.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: { name: ollama-models }
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 3Gi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  labels: { app.kubernetes.io/name: ollama }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }   # the model volume is ReadWriteOnce
+  selector: { matchLabels: { app.kubernetes.io/name: ollama } }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: ollama }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: ollama
+          image: docker.io/alpine/ollama:0.40.11
+          # Serve, then pull the model once into the volume; ready only when the model is there.
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              ollama serve &
+              until ollama list >/dev/null 2>&1; do sleep 1; done
+              ollama pull "$MODEL"
+              wait
+          env:
+            - { name: MODEL, valueFrom: { configMapKeyRef: { name: deepscan-config, key: OPENAI_MODEL } } }
+            - { name: OLLAMA_HOST, value: "0.0.0.0:11434" }
+            - { name: OLLAMA_MODELS, value: /models }
+            - { name: HOME, value: /models }
+            - { name: OLLAMA_KEEP_ALIVE, value: "-1" }   # keep the model loaded between files
+          ports: [{ name: http, containerPort: 11434 }]
+          readinessProbe:
+            exec: { command: ["/bin/sh", "-c", "ollama show \"$MODEL\" >/dev/null 2>&1"] }
+            periodSeconds: 5
+            failureThreshold: 360
+          resources:
+            requests: { cpu: "1", memory: 2Gi }
+            limits: { memory: 4Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: models, mountPath: /models }
+      volumes:
+        - name: models
+          persistentVolumeClaim: { claimName: ollama-models }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  labels: { app.kubernetes.io/name: ollama }
+spec:
+  selector: { app.kubernetes.io/name: ollama }
+  ports: [{ name: http, port: 11434, targetPort: http }]
+---
+# Only the analysis agents may call the model; the model may only reach the registry to pull itself.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: ollama }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: ollama } }
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/name: analysis-agent } } }]
+      ports: [{ port: 11434 }]
+  egress:
+    - to:
+        - ipBlock: { cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16] }
+      ports: [{ port: 443 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: agent-egress-ollama }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: analysis-agent } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app.kubernetes.io/name: ollama } } }]
+      ports: [{ port: 11434 }]

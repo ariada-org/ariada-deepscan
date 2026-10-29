@@ -15,11 +15,13 @@ export const env = loadEnv(
     OPENAI_MODEL: z.string().default("qwen2.5-coder:7b"),
     WORKER_CONCURRENCY: z.coerce.number().int().min(0).max(32).default(2),
     JOB_LEASE_SECONDS: z.coerce.number().int().default(300),
+    // one model call; kept under the lease, or a slow call gets the job handed to a second pod
+    LLM_TIMEOUT_MS: z.coerce.number().int().min(1000).default(240_000),
     MAX_TURNS: z.coerce.number().int().min(1).max(20).default(8),
     MAX_TOOL_CALLS: z.coerce.number().int().min(1).max(100).default(24),
     MAX_PROMPT_LINES: z.coerce.number().int().default(1200),
     MOCK_DELAY_MS: z.coerce.number().int().min(0).default(900),
     MOCK_HALLUCINATE_RATE: z.coerce.number().min(0).max(1).default(0.35),
-    PROMPT_VERSION: z.string().default("v3"),
+    PROMPT_VERSION: z.string().default("v4"), // bump to drop cached analyses (v4: tool calls read from message text)
   }),
 );

@@ -97,11 +97,22 @@ docker compose up --build      # http://localhost:8080
 
 ### 3. Kubernetes
 
-The quickest way is one command on a laptop with Docker, [kind](https://kind.sigs.k8s.io) and kubectl. It creates a local cluster, installs the NGINX ingress controller and deploys the published images from Docker Hub (`ariadaorg/deepscan-*:1.0.0`):
+The quickest way is one command on a laptop with Docker, [kind](https://kind.sigs.k8s.io) and kubectl. It creates a local cluster, installs the NGINX ingress controller and deploys the published images from Docker Hub (`ariadaorg/deepscan-*`):
 
 ```bash
-./scripts/kind-up.sh           # → http://localhost:8088
+./scripts/kind-up.sh           # asks which model to use, then → http://localhost:8088
+./scripts/kind-up.sh host      # or name the mode: mock | host | cluster
 ```
+
+The analysis agents need a model, and there are three ways to give them one:
+
+| Mode | What runs the model | Speed on a laptop | Needs |
+|---|---|---|---|
+| `mock` (default) | nothing: a scripted stand-in that calls the tools like a model and plants the mistakes the verifier must catch | a scan in seconds | nothing |
+| `host` | [Ollama](https://ollama.com) on the machine itself, reached from the cluster through a Service with no pods behind it | about a minute per file with `qwen2.5-coder:7b` | Ollama installed; on Linux started with `OLLAMA_HOST=0.0.0.0` |
+| `cluster` | an Ollama pod inside the cluster, CPU only, `qwen2.5-coder:1.5b` on a PVC | slower; the first start downloads about 1 GB | nothing extra |
+
+`host` is the one to use for a real demo on a Mac: containers there cannot reach the GPU, the host's Ollama can. The overlays live in `overlays/llm-host` and `overlays/llm-cluster`; `LLM=<mode> ./scripts/deploy.sh` switches an existing cluster between modes and ends with a check that an agent pod reaches the model.
 
 For any other cluster:
 
@@ -146,7 +157,7 @@ In a PR you can comment `@ariada-deepscan rescan` or `@ariada-deepscan ignore <f
 The default `LLM_PROVIDER=mock` is a scripted agent. It needs no API key, behaves like a tool-calling model and deliberately produces the failure modes the architecture defends against: an invented criterion, a fabricated snippet and a contradicted claim. For a real model:
 
 * Anthropic: set `LLM_PROVIDER=anthropic` and put `ANTHROPIC_API_KEY` in `k8s/secrets/llm.env` (mounted only into `analysis-agent`) (model set by `ANTHROPIC_MODEL`).
-* Local or open models: set `LLM_PROVIDER=openai`, `OPENAI_BASE_URL=http://ollama:11434/v1` and `OPENAI_MODEL=qwen2.5-coder:7b` (any OpenAI-compatible server with tool calling). Allow the agent's egress to that service.
+* Local or open models: `LLM=host` or `LLM=cluster` (see *Kubernetes* above) sets `LLM_PROVIDER=openai` and points the agents at Ollama. Any other OpenAI-compatible server with tool calling works the same way through `OPENAI_BASE_URL` and `OPENAI_MODEL`; allow the agent's egress to it. Some local models write their tool calls as JSON in the reply text instead of the `tool_calls` field; the agent reads them from there too.
 
 ### 6. Browser extension
 

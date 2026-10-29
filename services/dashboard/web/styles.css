@@ -78,7 +78,8 @@ th { font-weight: 600; color: var(--ink-soft); font-size: .9rem; }
 .pill { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
 .s-completed { color: var(--ok); }
 .v-verified { color: var(--ink); }
-.s-running, .s-queued, .s-ingesting, .s-analyzing { color: var(--blue); }
+.s-running, .s-ingesting, .s-analyzing { color: var(--blue); }
+.s-queued { color: var(--ink-soft); }
 .s-failed, .s-error { color: var(--bad); }
 .v-unverifiable { color: var(--review); }
 .v-rejected, .s-skipped { color: var(--muted); }
@@ -109,6 +110,11 @@ th { font-weight: 600; color: var(--ink-soft); font-size: .9rem; }
 .legend { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .9rem; font-size: .9rem; align-items: center; }
 .legend .swatch { width: 16px; height: 16px; border-radius: 3px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1; margin-right: .35rem; vertical-align: -3px; }
 .legend-pods { margin-top: .4rem; color: var(--ink-soft); }
+.now { display: flex; flex-wrap: wrap; gap: .4rem .5rem; align-items: center; margin: 0 0 .75rem; font-size: .9rem; }
+.now .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .4rem; vertical-align: -1px; }
+.nowitem { display: inline-flex; align-items: center; gap: .35rem; min-height: 32px; padding: .15rem .6rem; border: 1px solid var(--line, #cbd5e1); border-radius: 999px; background: none; color: var(--ink); font: inherit; font-weight: 400; font-size: .85rem; cursor: pointer; }
+.nowitem:hover { border-color: var(--ink); }
+.nowitem .podchip { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 .legend-pods .swatch { width: 10px; height: 10px; vertical-align: 0; }
 .counts { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: .9rem; }
 .counts div { display: grid; }
@@ -131,6 +137,7 @@ th { font-weight: 600; color: var(--ink-soft); font-size: .9rem; }
 .file .tally { display: flex; gap: .3rem; flex: none; font-size: .78rem; }
 .tally .t { padding: 0 .35rem; border-radius: 3px; border: 1.5px solid currentColor; font-weight: 600; }
 .file .state { font-size: .78rem; color: var(--blue); font-weight: 600; }
+.file .state.s-queued { color: var(--ink-soft); font-weight: 400; }   /* grey, like its bar in the ribbon */
 
 /* findings */
 .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
