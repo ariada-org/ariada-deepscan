@@ -24,20 +24,20 @@ generatorOptions:
 # scripts/build-push.sh rewrites these to your Docker Hub account
 images:
   - name: deepscan-github-connector
-    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-github-connector
+    newName: docker.io/ariadaorg/deepscan-github-connector
     newTag: "1.0.0"
   - name: deepscan-analysis-agent
-    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-analysis-agent
+    newName: docker.io/ariadaorg/deepscan-analysis-agent
     newTag: "1.0.0"
   - name: deepscan-rag-service
-    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-rag-service
+    newName: docker.io/ariadaorg/deepscan-rag-service
     newTag: "1.0.0"
   - name: deepscan-verifier
-    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-verifier
+    newName: docker.io/ariadaorg/deepscan-verifier
     newTag: "1.0.0"
   - name: deepscan-findings-api
-    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-findings-api
+    newName: docker.io/ariadaorg/deepscan-findings-api
     newTag: "1.0.0"
   - name: deepscan-dashboard
-    newName: docker.io/YOUR_DOCKERHUB_USER/deepscan-dashboard
+    newName: docker.io/ariadaorg/deepscan-dashboard
     newTag: "1.0.0"
