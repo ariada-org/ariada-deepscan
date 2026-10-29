@@ -160,4 +160,4 @@ PostgreSQL is a StatefulSet whose `volumeClaimTemplate` keeps data across pod an
 
 ## 5. Use of generative AI
 
-*(Adapt to the course GenAI policy.)* Generative AI (Claude) was used as a programming assistant while designing and implementing this project. All code was reviewed, run and tested by the author; the design decisions and their justification are the author's.
+Generative AI (Claude) was used as a programming assistant while designing and implementing this project. All code was reviewed, run and tested by the author; the design decisions and their justification are the author's.
