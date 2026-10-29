@@ -97,6 +97,14 @@ docker compose up --build      # http://localhost:8080
 
 ### 3. Kubernetes
 
+The quickest way is one command on a laptop with Docker, [kind](https://kind.sigs.k8s.io) and kubectl. It creates a local cluster, installs the NGINX ingress controller and deploys the published images from Docker Hub (`ariadaorg/deepscan-*:1.0.0`):
+
+```bash
+./scripts/kind-up.sh           # → http://localhost:8088
+```
+
+For any other cluster:
+
 ```bash
 # build multi-arch images (amd64 + arm64) and push them to Docker Hub
 docker login
