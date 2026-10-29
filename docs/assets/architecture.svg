@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1005 882" font-family="Atkinson Hyperlegible Next, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" role="img" aria-labelledby="t d">
 <title id="t">Ariada DeepScan architecture</title>
-<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI. Dashed and not built yet: a fix-agent that turns verified findings into a fix pull request, whose own PR scan then reports them as resolved.</desc>
+<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI. Dashed and not built yet: a box for the Ariada products that close the loop: clamper.ai gates the merge, blamer.ai attributes a regression to its commit, and reverter.ai opens a fix pull request whose own PR scan reports the findings as resolved.</desc>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="21" y="28" font-weight="700" fill="#475569" letter-spacing=".08em" font-size="12">OUTSIDE THE CLUSTER</text>
@@ -34,10 +34,10 @@
 <rect x="268.5" y="617" width="144" height="44" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
 <text x="340.5" y="644" text-anchor="middle" font-weight="700" fill="#0f172a">rag-service</text>
 <rect x="592.5" y="221" width="198" height="110" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="691.5" y="248" text-anchor="middle" font-weight="700" fill="#0f172a">fix-agent (planned)</text>
-<text x="691.5" y="270" text-anchor="middle" fill="#334155">verified findings</text>
-<text x="691.5" y="292" text-anchor="middle" fill="#334155">→ patch → fix PR</text>
-<text x="691.5" y="314" text-anchor="middle" fill="#334155">→ PR scan: resolved</text>
+<text x="691.5" y="248" text-anchor="middle" font-weight="700" fill="#0f172a">ariada.ai (planned)</text>
+<text x="691.5" y="270" text-anchor="middle" fill="#334155">clamper.ai → gate</text>
+<text x="691.5" y="292" text-anchor="middle" fill="#334155">blamer.ai → author</text>
+<text x="691.5" y="314" text-anchor="middle" fill="#334155">reverter.ai → fix PR</text>
 <rect x="700.5" y="507" width="243" height="154" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
 <text x="822" y="534" text-anchor="middle" font-weight="700" fill="#0f172a">analysis-agent × N</text>
 <text x="822" y="556" text-anchor="middle" fill="#334155">LLM tool loop</text>
@@ -80,5 +80,5 @@
 <text x="833" y="688" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">claim jobs,</text>
 <text x="833" y="710" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">write findings</text>
 <line x1="25.5" y1="859" x2="52.5" y2="859" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="61.5" y="864" fill="#92400e" font-size="12.5">dashed = planned, not built yet: a fix-agent closes the loop fix → pull request → scan → resolved</text>
+<text x="61.5" y="864" fill="#92400e" font-size="12.5">dashed = planned, not built yet: the ariada suite closes the loop: clamper.ai gate → blamer.ai attribution → reverter.ai fix pull request → scan → resolved</text>
 </svg>

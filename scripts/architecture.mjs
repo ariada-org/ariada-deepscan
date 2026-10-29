@@ -23,7 +23,7 @@ const boxes = [
   { id: "connector", kind: "service", x: 40, y: 17, w: 26, h: 4, lines: ["github-connector", "snapshots, jobs, checks"] },
   { id: "verifier", kind: "service", x: 28, y: 23, w: 17, h: 3, lines: ["verifier"] },
   { id: "rag", kind: "service", x: 28, y: 27, w: 17, h: 3, lines: ["rag-service"] },
-  { id: "fixer", kind: "planned", x: 64, y: 9, w: 23, h: 6, lines: ["fix-agent (planned)", "verified findings", "→ patch → fix PR", "→ PR scan: resolved"] },
+  { id: "fixer", kind: "planned", x: 64, y: 9, w: 23, h: 6, lines: ["ariada.ai (planned)", "clamper.ai → gate", "blamer.ai → author", "reverter.ai → fix PR"] },
   { id: "agent", kind: "service", x: 76, y: 22, w: 28, h: 8, lines: ["analysis-agent × N", "LLM tool loop", "competing consumers", "scaled by its own HPA"] },
   { id: "db", kind: "data", x: 2, y: 33, w: 102, h: 4, lines: ["PostgreSQL 16 + pgvector — StatefulSet with a PersistentVolumeClaim", "repositories · scans · scan_jobs queue · findings · WCAG corpus (full-text + vectors)"] },
 ];
@@ -85,7 +85,7 @@ for (const e of edges) {
   for (const [lx, ly, t] of e.label ?? []) [...t].forEach((c, i) => put(lx + i, ly, c));
 }
 [..."OUTSIDE THE CLUSTER"].forEach((c, i) => put(1 + i, 0, c));
-const LEGEND = "┄┄ dashed = planned, not built yet: fix-agent closes the loop fix → PR → scan → resolved";
+const LEGEND = "┄┄ dashed = planned: ariada suite closes the loop gate → who → fix PR → scan → resolved";
 [...LEGEND].forEach((c, i) => put(1 + i, H - 1, c));
 const text = grid.map((r) => r.join("").trimEnd()).join("\n");
 
@@ -103,7 +103,7 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
 const svg = [];
 svg.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PAD * 2 + W * CW} ${PAD * 2 + H * CH}" font-family="Atkinson Hyperlegible Next, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" role="img" aria-labelledby="t d">`);
 svg.push(`<title id="t">Ariada DeepScan architecture</title>`);
-svg.push(`<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI. Dashed and not built yet: a fix-agent that turns verified findings into a fix pull request, whose own PR scan then reports them as resolved.</desc>`);
+svg.push(`<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI. Dashed and not built yet: a box for the Ariada products that close the loop: clamper.ai gates the merge, blamer.ai attributes a regression to its commit, and reverter.ai opens a fix pull request whose own PR scan reports the findings as resolved.</desc>`);
 svg.push(`<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>`);
 svg.push(`<rect width="100%" height="100%" fill="#ffffff"/>`);
 svg.push(`<text x="${cx(1) - CW / 2}" y="${cy(0) + 5}" font-weight="700" fill="#475569" letter-spacing=".08em" font-size="12">OUTSIDE THE CLUSTER</text>`);
@@ -132,7 +132,7 @@ for (const e of edges) {
     svg.push(`<text x="${cx(lx) - CW / 2 + 2}" y="${cy(ly) + 5}" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">${esc(t)}</text>`);
 }
 svg.push(`<line x1="${cx(1)}" y1="${cy(H - 1)}" x2="${cx(4)}" y2="${cy(H - 1)}" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>`);
-svg.push(`<text x="${cx(5)}" y="${cy(H - 1) + 5}" fill="#92400e" font-size="12.5">dashed = planned, not built yet: a fix-agent closes the loop fix → pull request → scan → resolved</text>`);
+svg.push(`<text x="${cx(5)}" y="${cy(H - 1) + 5}" fill="#92400e" font-size="12.5">dashed = planned, not built yet: the ariada suite closes the loop: clamper.ai gate → blamer.ai attribution → reverter.ai fix pull request → scan → resolved</text>`);
 svg.push(`</svg>`);
 const svgPath = join(root, "docs/assets/architecture.svg");
 writeFileSync(svgPath, svg.join("\n") + "\n");
