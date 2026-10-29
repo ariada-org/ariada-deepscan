@@ -33,18 +33,23 @@ main:focus { outline: none; box-shadow: none; }
 .skip:focus { top: .5rem; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem clamp(1rem, 3vw, 2rem); background: var(--ink); color: #fff; }
-.brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 1.05rem; display: inline-flex; align-items: center; gap: .6rem; }
-.brand-mark { width: 1.75rem; height: 1.75rem; flex: none; }
+/* header follows ariada.ai: light bar, bare mark in brand blue, lowercase wordmark, muted tagline */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem clamp(1rem, 3vw, 2rem); background: #f8fafc; color: var(--ink); border-bottom: 1px solid var(--line); }
+.brand { color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: .55rem; }
+.brand-mark { width: 2rem; height: 2rem; flex: none; color: #2563eb; }
+.wordmark { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.01em; }
+.wordmark .product { color: #2563eb; }
+.tagline { color: var(--ink-soft); font-size: .9rem; margin-left: .35rem; }
+@media (max-width: 640px) { .tagline { display: none; } }
 .bar nav { display: flex; align-items: center; gap: .75rem; font-size: .95rem; }
-.bar nav a, .bar nav button { color: #fff; }
+.bar nav a, .bar nav button { color: var(--ink); }
 .avatar { width: 28px; height: 28px; border-radius: 50%; }
 
 main { padding: clamp(1rem, 3vw, 2rem); max-width: 1400px; margin: 0 auto; }
 
 button, .btn { font: inherit; font-weight: 600; cursor: pointer; border-radius: var(--r); padding: .55rem 1rem; border: 2px solid var(--ink); background: var(--ink); color: #fff; text-decoration: none; display: inline-block; }
 .btn-quiet { background: transparent; color: var(--ink); }
-.bar .btn-quiet { color: #fff; border-color: #fff; }
+.bar .btn-quiet { color: var(--ink); border-color: var(--ink); }
 button:disabled { opacity: .55; cursor: progress; }
 .linkish { background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; font-weight: 400; }
 
