@@ -28,7 +28,7 @@ Once the issues are fixed, the system checks the fix by itself. A push to the de
 
 [![Architecture](assets/architecture.png)](assets/architecture.svg)
 
-Everything drawn with solid lines is built and deployed. The dashed box is the one part that is not built yet: the Ariada products clamper.ai, blamer.ai and reverter.ai, which would close the loop from finding to fix (section 5).
+Everything drawn with solid lines is built and deployed. The dashed boxes on the right are not part of this deployment and are not connected yet: clamper.ai, blamer.ai and reverter.ai, the Ariada products that would take DeepScan's findings on to a gate, an author and a fix (section 5).
 
 The same diagram as text:
 
@@ -37,28 +37,28 @@ The same diagram as text:
  OUTSIDE THE CLUSTER
  ┌──────────────────────┐         ┌────────────────────────────┐            ┌──────────────────────────┐
  │ Browser / extension  │         │ GitHub                     │            │ LLM endpoint (Ollama)    │
- │ dashboard UI, overlay│         │ App webhooks, REST API     │◀┄┄┄┐       │ qwen2.5-coder:7b         │
- └──────────────────────┘         └────────────────────────────┘    ┆       └──────────────────────────┘
-     │                                  │                     ▲     ┆opens fix PR       ▲
-     │                                  │webhooks             │     ┆                   │
-╔════╪═ KUBERNETES NAMESPACE deepscan ══╪═════════════════════╪═════╪═══════════════════╪══════════════════╗
-║    ▼                                  ▼                     │     ┆                   │                  ║
-║ ┌──────────────────────────────────────────────────────┐    │ ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐ │                  ║
-║ │ Ingress                                              │    │ ┆ ariada.ai (planned) ┆ │                  ║
-║ │ /      → dashboard                                   │    │ ┆ clamper.ai → gate   ┆ │                  ║
-║ │ /api   → findings-api                                │    │ ┆ blamer.ai → author  ┆ │chat + tool calls ║
-║ │ /gh    → github-connector                            │    │ ┆ reverter.ai → fix PR┆ │                  ║
-║ └──────────────────────────────────────────────────────┘    │ └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘ │                  ║
-║       │/                │/api                   │/gh        │REST: trees, blobs,      │                  ║
-║       ▼                 ▼                       ▼           │checks, PR reviews       │                  ║
-║ ┌────────────┐  ┌────────────────┐    ┌────────────────────────┐                      │                  ║
-║ │ dashboard  │  │ findings-api   │    │ github-connector       │◀─────────────┐       │                  ║
-║ │ SPA        │  │ read model     │    │ snapshots, jobs, checks│ read_file,   │       │                  ║
-║ └────────────┘  └────────────────┘    └────────────────────────┘ list_related │       │                  ║
-║                         │               │policy gate  │                       │       │                  ║
-║                         │               ▼             │                   ┌──────────────────────────┐   ║
-║                         │ ┌───────────────┐           │ run_rules, verify │ analysis-agent × N       │   ║
-║                         │ │ verifier      │◀──────────┼───────────────────│ LLM tool loop            │   ║
+ │ dashboard UI, overlay│         │ App webhooks, REST API     │            │ qwen2.5-coder:7b         │
+ └──────────────────────┘         └────────────────────────────┘            └──────────────────────────┘
+     │                                  │                 ▲   ▲                         ▲                     opens fix PR
+     │                                  │webhooks         └┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄│┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+╔════╪═ KUBERNETES NAMESPACE deepscan ══╪═════════════════════╪═════════════════════════╪══════════════════╗                            ┆
+║    ▼                                  ▼                     │                         │                  ║  findings + baseline       ┆
+║ ┌──────────────────────────────────────────────────────┐    │                         │                  ║  ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐ ┆
+║ │ Ingress                                              │    │                         │                  ║┄▶┆ clamper.ai (planned)  ┆ ┆
+║ │ /      → dashboard                                   │    │                         │                  ║  ┆ gate: new findings    ┆ ┆
+║ │ /api   → findings-api                                │    │                         │chat + tool calls ║  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘ ┆
+║ │ /gh    → github-connector                            │    │                         │                  ║              ┆ failed check┆
+║ └──────────────────────────────────────────────────────┘    │                         │                  ║              ▼             ┆
+║       │/                │/api                   │/gh        │REST: trees, blobs,      │                  ║  ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐ ┆
+║       ▼                 ▼                       ▼           │checks, PR reviews       │                  ║  ┆ blamer.ai (planned)   ┆ ┆
+║ ┌────────────┐  ┌────────────────┐    ┌────────────────────────┐                      │                  ║  ┆ who: commit, human/AI ┆ ┆
+║ │ dashboard  │  │ findings-api   │    │ github-connector       │◀─────────────┐       │                  ║  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘ ┆
+║ │ SPA        │  │ read model     │    │ snapshots, jobs, checks│ read_file,   │       │                  ║              ┆ who, commit ┆
+║ └────────────┘  └────────────────┘    └────────────────────────┘ list_related │       │                  ║              ▼             ┆
+║                         │               │policy gate  │                       │       │                  ║  ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐ ┆
+║                         │               ▼             │                   ┌──────────────────────────┐   ║  ┆ reverter.ai (planned) ┆ ┆
+║                         │ ┌───────────────┐           │ run_rules, verify │ analysis-agent × N       │   ║  ┆ fix PR or rollback    ┆┄┘
+║                         │ │ verifier      │◀──────────┼───────────────────│ LLM tool loop            │   ║  └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 ║                         │ └───────────────┘           │                   │ competing consumers      │   ║
 ║                         │reads                        │jobs               │ scaled by its own HPA    │   ║
 ║                         │ ┌───────────────┐           │search_wcag, get_sc│                          │   ║
@@ -72,7 +72,7 @@ The same diagram as text:
 ║ │ repositories · scans · scan_jobs queue · findings · WCAG corpus (full-text + vectors)              │   ║
 ║ └────────────────────────────────────────────────────────────────────────────────────────────────────┘   ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
- ┄┄ dashed = planned: ariada suite closes the loop gate → who → fix PR → scan → resolved
+ ┄┄ dashed = planned Ariada products: clamper.ai gates → blamer.ai finds who → reverter.ai opens fix PR → scan → resolved
 ```
 <!-- architecture:end -->
 
@@ -166,9 +166,9 @@ The language model is not part of the deployment. It is an external endpoint tha
 
 ## 5. What comes next
 
-**Closing the loop from finding to fix.** Today the loop is closed only on the checking side. A developer fixes the code, the push or the pull request is scanned again, and the comparison with the previous scan shows the issue as fixed. The fixing itself is still done by a person. The next step is the dashed box in the architecture diagram: a fix-agent that takes the verified findings of a scan, writes a patch for those with a safe, local fix (a missing `lang`, an icon button without a name, a removed focus outline, a form field without a label), and opens a pull request with it. That pull request then goes through the same pipeline as any other. It is scanned against its base, and the check passes only if the findings it targets come back as fixed and no new ones appear. A person still reviews and merges it. Little new infrastructure is needed: the fix-agent is one more consumer of the existing job queue, its patches are judged by the same deterministic verifier, and its pull requests go through the same webhook path as human ones. Findings that need judgement, such as whether an alt text actually describes the image, stay with people.
+**Closing the loop from finding to fix.** Today the loop is closed only on the checking side. A developer fixes the code, the push or the pull request is scanned again, and the comparison with the previous scan shows the issue as fixed. The fixing itself is still done by a person. The next step is a fix step that takes the verified findings of a scan, writes a patch for those with a safe, local fix (a missing `lang`, an icon button without a name, a removed focus outline, a form field without a label), and opens a pull request with it. That pull request then goes through the same pipeline as any other. It is scanned against its base, and the check passes only if the findings it targets come back as fixed and no new ones appear. A person still reviews and merges it. Findings that need judgement, such as whether an alt text actually describes the image, stay with people.
 
-**Joining the Ariada products.** The fix step does not have to be written from scratch, because DeepScan is published under the Ariada project, which already has a separate engine for each step after detection, and those engines share one finding format with fingerprints and a baseline policy. clamper.ai is the merge gate: it compares the findings of a change with its baseline and blocks only the new ones. That is what DeepScan's pull-request check does today, so the check can move onto the shared gate. blamer.ai answers who introduced a regression, down to the commit, and whether that code was written by a person or by an AI coding assistant. DeepScan already knows the file and the line of every finding, which is exactly what that question needs. reverter.ai is the fix step itself. It fixes the simple cases deterministically, hands the rest to a language model, and opens a draft fix pull request, or rolls the change back. It is the natural content of the dashed box. What is missing is the wiring, since the engines do not call each other yet. The work is a small orchestrator in `github-connector` that passes a failed check to blamer.ai and the result on to reverter.ai, plus one integration test that runs the whole loop once.
+**DeepScan as the scanning core of the Ariada products.** The fix step does not have to be written from scratch. DeepScan is published under the Ariada project, and within that family it is the scanning core: it finds problems and says exactly where they are. Each step after detection is a separate Ariada product, and the products share one finding format with fingerprints and a baseline policy, so DeepScan's findings can be handed on as they are. The diagram draws the three of them dashed, next to the cluster. clamper.ai is the gate: it compares the findings of a change with its baseline and blocks only the new ones. That is what DeepScan's pull-request check does today, so the check can move onto the shared gate. blamer.ai is attribution: it finds the commit that introduced a regression and its author, and whether that code was written by a person or by an AI coding assistant. DeepScan already knows the file and the line of every finding, which is exactly what that question needs. reverter.ai is the fix: it fixes the simple cases deterministically, hands the rest to a language model, and opens a draft fix pull request, or rolls the change back. What is missing is the wiring, since the products do not call each other yet. The work is a small orchestrator in `github-connector` that passes a failed check to blamer.ai and the result on to reverter.ai, plus one integration test that runs the whole loop once. Little has to change inside DeepScan itself, because the fix pull request comes back through the same webhook path as a human one and is judged by the same deterministic verifier.
 
 **More scan domains.** The first domain is web accessibility, because that is where the law (the European Accessibility Act) creates demand now. Nothing in the architecture is tied to it, though. The rules work on a framework-neutral element model, the knowledge base is a corpus loaded into `rag-service`, the list of valid criteria is an enum in the contract layer, and fingerprints, baselines and the pull-request gate do not care what a finding is about. Other domains can be added the same way, each with its own rule pack, corpus and criteria list. Ariada's domain catalogue already names them. Next to accessibility, the core domains are security (unsafe HTML injection, missing security headers, secrets in client code), privacy (trackers and cookies loaded before consent, in the GDPR sense), sustainability (page weight and wasted transfers), AI readiness (whether crawlers and language models can read the site) and structured data. After those come performance, search, localization and reliability. Each domain can get its own job queue and agent Deployment, so a heavy domain scales without slowing the others.
 

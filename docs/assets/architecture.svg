@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1005 882" font-family="Atkinson Hyperlegible Next, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1257 882" font-family="Atkinson Hyperlegible Next, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" role="img" aria-labelledby="t d">
 <title id="t">Ariada DeepScan architecture</title>
-<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI. Dashed and not built yet: a box for the Ariada products that close the loop: clamper.ai gates the merge, blamer.ai attributes a regression to its commit, and reverter.ai opens a fix pull request whose own PR scan reports the findings as resolved.</desc>
+<desc id="d">Browser and GitHub reach the cluster through one Ingress, which routes to the dashboard, findings-api and github-connector. github-connector writes scan jobs to PostgreSQL and calls the verifier as a policy gate. analysis-agent replicas claim jobs from PostgreSQL, call the LLM endpoint, read files through github-connector, search WCAG in rag-service and verify findings in the verifier, then write findings back. findings-api reads PostgreSQL for the UI. Dashed, outside the cluster and not connected yet: three Ariada products that take DeepScan's findings further. clamper.ai receives the findings and the baseline and gates the merge, blamer.ai takes a failed check and finds the commit and author, and reverter.ai opens a fix pull request on GitHub whose own scan reports the findings as resolved.</desc>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="21" y="28" font-weight="700" fill="#475569" letter-spacing=".08em" font-size="12">OUTSIDE THE CLUSTER</text>
@@ -33,11 +33,15 @@
 <text x="340.5" y="556" text-anchor="middle" font-weight="700" fill="#0f172a">verifier</text>
 <rect x="268.5" y="617" width="144" height="44" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
 <text x="340.5" y="644" text-anchor="middle" font-weight="700" fill="#0f172a">rag-service</text>
-<rect x="592.5" y="221" width="198" height="110" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="691.5" y="248" text-anchor="middle" font-weight="700" fill="#0f172a">ariada.ai (planned)</text>
-<text x="691.5" y="270" text-anchor="middle" fill="#334155">clamper.ai → gate</text>
-<text x="691.5" y="292" text-anchor="middle" fill="#334155">blamer.ai → author</text>
-<text x="691.5" y="314" text-anchor="middle" fill="#334155">reverter.ai → fix PR</text>
+<rect x="1006.5" y="221" width="216" height="66" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1114.5" y="248" text-anchor="middle" font-weight="700" fill="#0f172a">clamper.ai (planned)</text>
+<text x="1114.5" y="270" text-anchor="middle" fill="#334155">gate: new findings</text>
+<rect x="1006.5" y="353" width="216" height="66" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1114.5" y="380" text-anchor="middle" font-weight="700" fill="#0f172a">blamer.ai (planned)</text>
+<text x="1114.5" y="402" text-anchor="middle" fill="#334155">who: commit, human/AI</text>
+<rect x="1006.5" y="485" width="216" height="66" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1114.5" y="512" text-anchor="middle" font-weight="700" fill="#0f172a">reverter.ai (planned)</text>
+<text x="1114.5" y="534" text-anchor="middle" fill="#334155">fix PR or rollback</text>
 <rect x="700.5" y="507" width="243" height="154" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
 <text x="822" y="534" text-anchor="middle" font-weight="700" fill="#0f172a">analysis-agent × N</text>
 <text x="822" y="556" text-anchor="middle" fill="#334155">LLM tool loop</text>
@@ -52,8 +56,14 @@
 <polyline points="574.5,397 574.5,111" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
 <text x="581" y="358" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">REST: trees, blobs,</text>
 <text x="581" y="380" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">checks, PR reviews</text>
-<polyline points="628.5,221 628.5,89 583.5,89" fill="none" stroke="#b45309" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a)"/>
-<text x="635" y="138" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">opens fix PR</text>
+<polyline points="979.5,243 1006.5,243" fill="none" stroke="#b45309" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a)"/>
+<text x="1004" y="204" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">findings + baseline</text>
+<polyline points="1114.5,287 1114.5,353" fill="none" stroke="#b45309" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a)"/>
+<text x="1130" y="314" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">failed check</text>
+<polyline points="1114.5,419 1114.5,485" fill="none" stroke="#b45309" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a)"/>
+<text x="1130" y="446" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">who, commit</text>
+<polyline points="1222.5,529 1240.5,529 1240.5,155 538.5,155 538.5,111" fill="none" stroke="#b45309" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a)"/>
+<text x="1004" y="138" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">opens fix PR</text>
 <polyline points="808.5,507 808.5,111" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
 <text x="815" y="292" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">chat + tool calls</text>
 <polyline points="88.5,331 88.5,397" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#a)"/>
@@ -80,5 +90,5 @@
 <text x="833" y="688" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">claim jobs,</text>
 <text x="833" y="710" fill="#475569" font-size="12" stroke="#ffffff" stroke-width="4" paint-order="stroke">write findings</text>
 <line x1="25.5" y1="859" x2="52.5" y2="859" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="61.5" y="864" fill="#92400e" font-size="12.5">dashed = planned, not built yet: the ariada suite closes the loop: clamper.ai gate → blamer.ai attribution → reverter.ai fix pull request → scan → resolved</text>
+<text x="61.5" y="864" fill="#92400e" font-size="12.5">dashed = planned, not connected yet: DeepScan is the scanning core; the Ariada products close the loop: clamper.ai gate → blamer.ai attribution → reverter.ai fix pull request → scan → resolved</text>
 </svg>
