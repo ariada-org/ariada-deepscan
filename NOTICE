@@ -6,3 +6,8 @@ maintained by Alekszandr Bricskin (Agonist Development AB).
 
 Licensed under the European Union Public Licence v. 1.2 (EUPL-1.2) —
 see LICENSE for full terms.
+
+"Ariada" and the Ariada mark (the triangle-and-thread logo in
+services/dashboard/web/index.html) are trademarks of Agonist Development AB
+and are not licensed under EUPL-1.2. Forks must remove them; see
+https://github.com/ariada-org/ariada/blob/main/packages/ariada-brand-tokens/TRADEMARK.md

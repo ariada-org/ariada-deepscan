@@ -35,7 +35,7 @@ main:focus { outline: none; box-shadow: none; }
 
 .bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem clamp(1rem, 3vw, 2rem); background: var(--ink); color: #fff; }
 .brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 1.05rem; display: inline-flex; align-items: center; gap: .6rem; }
-.brand-mark { width: 1.6rem; height: .7rem; background: var(--marker); border-radius: 2px; }
+.brand-mark { width: 1.75rem; height: 1.75rem; flex: none; }
 .bar nav { display: flex; align-items: center; gap: .75rem; font-size: .95rem; }
 .bar nav a, .bar nav button { color: #fff; }
 .avatar { width: 28px; height: 28px; border-radius: 50%; }
