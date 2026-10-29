@@ -3,7 +3,7 @@
 *PA2577 Applied Cloud Computing and Big Data · Alekszandr Bricskin*
 
 - Source code and Kubernetes deployment: https://github.com/ariada-org/ariada-deepscan (`k8s/` holds the manifests; images on Docker Hub as [`ariadaorg/deepscan-<service>`](https://hub.docker.com/u/ariadaorg), versions pinned in `k8s/kustomization.yaml`)
-- Video: `<link to the recording>`
+- Video: uploaded as a file together with this report in the Canvas submission (about 9 minutes)
 
 ## 1. What the software does
 
