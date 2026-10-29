@@ -38,9 +38,13 @@ async function claim(db: Db): Promise<Job | null> {
   });
 }
 
-/** Mark the scan complete when no job is pending. The scan row lock serialises concurrent finishers. */
+/**
+ * Mark the scan complete when no job is pending. The scan row lock serialises concurrent finishers.
+ * NO KEY UPDATE, not UPDATE: the findings just inserted in this transaction hold a KEY SHARE lock on the
+ * same row through their foreign key, and two finishers upgrading that to FOR UPDATE deadlock each other.
+ */
 async function maybeCompleteScan(tx: Db, scanId: string) {
-  await sql`SELECT id FROM scans WHERE id = ${scanId} FOR UPDATE`.execute(tx);
+  await sql`SELECT id FROM scans WHERE id = ${scanId} FOR NO KEY UPDATE`.execute(tx);
   const open = await tx.selectFrom("scan_jobs").select(sql<number>`count(*)::int`.as("n")).where("scan_id", "=", scanId).where("status", "in", ["queued", "analyzing"]).executeTakeFirstOrThrow();
   if (open.n === 0) await tx.updateTable("scans").set({ status: "completed", finished_at: new Date() }).where("id", "=", scanId).where("status", "in", ["queued", "running"]).execute();
 }

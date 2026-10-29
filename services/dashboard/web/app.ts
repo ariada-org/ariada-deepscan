@@ -180,6 +180,18 @@ function compareLink(s: Scan, scans: Scan[]) {
   return prev ? h("a", { href: `#/scans/${prev.id}/diff/${s.id}` }, "What changed since the previous scan") : null;
 }
 
+/** replaces a compare link's text with the outcome, e.g. "3 fixed · 1 new" */
+async function fillDiffCounts(a: HTMLAnchorElement) {
+  const m = /#\/scans\/([0-9a-f-]{36})\/diff\/([0-9a-f-]{36})$/.exec(a.href);
+  if (!m) return;
+  try {
+    const items = (await api(`/api/scans/${m[1]}/diff/${m[2]}`, DiffResponse)).items.filter((i) => i.status !== "rejected");
+    const fixed = items.filter((i) => i.diff === "resolved").length, added = items.filter((i) => i.diff === "regression").length;
+    a.textContent = fixed || added ? [fixed && `${fixed} fixed`, added && `${added} new`].filter(Boolean).join(" · ") : "No change";
+    a.title = "Open the comparison with the previous scan";
+  } catch { /* keep the generic label */ }
+}
+
 /* ---------- repo ---------- */
 async function repoPage(id: string) {
   setPage("Repository", h("p", { class: "empty" }, "Loading…"));
@@ -201,6 +213,7 @@ async function repoPage(id: string) {
             )))))
         : h("p", { class: "empty" }, "No scans yet."),
     );
+    for (const a of main.querySelectorAll<HTMLAnchorElement>("td a[href*='/diff/']")) void fillDiffCounts(a);
   } catch (e) {
     setPage("Not found", h("p", { class: "error" }, (e as Error).message));
   }

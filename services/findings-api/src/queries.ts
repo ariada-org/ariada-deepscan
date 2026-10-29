@@ -34,16 +34,19 @@ export function toRecord(f: FRow): z.output<typeof FindingRecord> {
 
 /**
  * Version diff: classify findings of `head` against `base` by fingerprint.
- * Only files analysed in `head` are compared (a PR scan analyses changed files only).
+ * Only files analysed successfully in `head` are compared (a PR scan analyses changed files only):
+ * a file whose analysis failed says nothing, so its old findings are not "fixed". Likewise a file that
+ * failed in `base` cannot prove a finding new, so its findings count as already present.
  */
 export async function diffScans(db: Db, base: string, head: string) {
   const h = await db.selectFrom("findings").selectAll().where("scan_id", "=", head).where("status", "<>", "rejected").where("fingerprint", "is not", null).execute();
   const b = await db.selectFrom("findings").selectAll().where("scan_id", "=", base).where("status", "<>", "rejected").where("fingerprint", "is not", null)
-    .where("path", "in", sql<string>`(SELECT path FROM scan_jobs WHERE scan_id = ${head})`).execute();
+    .where("path", "in", sql<string>`(SELECT path FROM scan_jobs WHERE scan_id = ${head} AND status = 'done')`).execute();
+  const failedInBase = new Set((await db.selectFrom("scan_jobs").select("path").where("scan_id", "=", base).where("status", "=", "error").execute()).map((j) => j.path));
   const baseFp = new Set(b.map((f) => f.fingerprint));
   const headFp = new Set(h.map((f) => f.fingerprint));
   const items: (z.output<typeof FindingRecord> & { diff: z.output<typeof DiffClass> })[] = [
-    ...h.map((f) => ({ ...toRecord(f), diff: baseFp.has(f.fingerprint) ? ("persistent" as const) : ("regression" as const) })),
+    ...h.map((f) => ({ ...toRecord(f), diff: baseFp.has(f.fingerprint) || failedInBase.has(f.path) ? ("persistent" as const) : ("regression" as const) })),
     ...b.filter((f) => !headFp.has(f.fingerprint)).map((f) => ({ ...toRecord(f), diff: "resolved" as const })),
   ];
   const counts = { regression: 0, resolved: 0, persistent: 0 };
